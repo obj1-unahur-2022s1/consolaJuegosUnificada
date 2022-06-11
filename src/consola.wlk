@@ -4,7 +4,8 @@ import juego.*
 object consola {
 
 	const juegos = [
-		new Juego(color = "Amarillo"),
+		
+		bomberman,
 		new Juego(color = "Verde"),
 		new Juego(color = "Rojo"),
 		new Juego(color = "Azul"),

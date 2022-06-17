@@ -17,6 +17,7 @@ object consola {
 		game.height(12)
 		game.width(17)
 		game.title("Consola de juegos")
+		game.boardGround("bman/consola-menu.jpg")
 	}
 	
 	method iniciar(){

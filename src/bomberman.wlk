@@ -1,24 +1,6 @@
 import wollok.game.*
 
-object norte {
-	method siguiente(posicion) = posicion.up(1)
-	method opuesto() = sur
-}
-
-object este {
-	method siguiente(posicion) = posicion.right(1)
-	method opuesto() = oeste
-}
-
-object sur {
-	method siguiente(posicion) = posicion.down(1)
-	method opuesto() = norte
-}
-
-object oeste {
-	method siguiente(posicion) = posicion.left(1)
-	method opuesto() = este
-}
+// NIVELES
 
 class Nivel {
 	method configurar() {
@@ -59,6 +41,7 @@ class Nivel {
 
 object nivel1 inherits Nivel {
 	override method configurar() {
+		fondoDeNivel.establecer()
 		super()
 		self.configurarEscenario()
 		// JUGADOR
@@ -84,6 +67,8 @@ object nivel1 inherits Nivel {
 	}
 }
 
+// PERSONAJES
+
 class Personaje {
 	var position
 	var direccion
@@ -104,6 +89,8 @@ class Personaje {
 	method position() = position
 	method image() = direccion.toString() + frame.toString() + ".png"
 }
+
+// JUGADOR
 
 object jugador inherits Personaje(position=game.at(1,1),direccion=sur) {
 	var bombasDisponibles = 1
@@ -148,6 +135,8 @@ object jugador inherits Personaje(position=game.at(1,1),direccion=sur) {
 	override method image() = "bman/bman_" + super()
 }
 
+// ENEMIGOS
+
 class Enemigo inherits Personaje {
 	const id
 	
@@ -191,6 +180,8 @@ class Enemigo inherits Personaje {
 	
 }
 
+// BLOQUES
+
 class Bloque {
 	const property position
 	method initialize() {
@@ -208,6 +199,8 @@ class BloqueVulnerable inherits Bloque {
 	override method image() = "bman/explodableBlock.png"
 	override method explotar() {game.removeVisual(self)}
 }
+
+// HABILIDAD JUGADOR
 
 class Bomba {
 	const property position
@@ -252,29 +245,64 @@ class Bomba {
  	}
  }
  
- class Flama {
- 	const property position
- 	var frame = 0
- 	method initialize() {
- 		game.addVisual(self)
+class Flama {
+	const property position
+	var frame = 0
+	method initialize() {
+		game.addVisual(self)
 		jugador.refrescarFrame()
- 		game.onTick(100,position.toString(),{self.animar()})
- 		game.onCollideDo(self,{elemento => elemento.explotar()})
- 		game.schedule(2000,{self.remover()})
- 	}
+		game.onTick(100,position.toString(),{self.animar()})
+		game.onCollideDo(self,{elemento => elemento.explotar()})
+		game.schedule(2000,{self.remover()})
+	}
  	
- 	method remover() {
- 		if(game.hasVisual(self)) {
- 			game.removeVisual(self)
+	method remover() {
+		if(game.hasVisual(self)) {
+			game.removeVisual(self)
 			game.removeTickEvent(position.toString())
- 			jugador.agregarBombaDisponible()
- 		}
- 	}
- 	
- 	method explotar() {}
- 	method chocarJugador() {}
+			jugador.agregarBombaDisponible()
+		}
+	}
+	
+	method explotar() {}
+	method chocarJugador() {}
 
 	method animar() { frame = (frame + 1) % 5 }
- 	method image() = "bman/flama" + frame.toString() + ".png"
+	method image() = "bman/flama" + frame.toString() + ".png"
 
- }
+}
+
+// DIRECCIONES
+
+object norte {
+	method siguiente(posicion) = posicion.up(1)
+	method opuesto() = sur
+}
+
+object este {
+	method siguiente(posicion) = posicion.right(1)
+	method opuesto() = oeste
+}
+
+object sur {
+	method siguiente(posicion) = posicion.down(1)
+	method opuesto() = norte
+}
+
+object oeste {
+	method siguiente(posicion) = posicion.left(1)
+	method opuesto() = este
+}
+
+// FONDO
+
+object fondoDeNivel {
+	method position() = game.at(0,0)
+	method explotar() {}
+	method chocarConJugador() {}
+	method cortaLaExplosion() = false
+	method image() = "bman/pisoMosaico.png"
+	method establecer() {
+		game.addVisual(self)
+	}
+}

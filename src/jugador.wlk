@@ -18,7 +18,7 @@ object jugador {
 		keyboard.down().onPressDo({self.mover(sur)})
 		keyboard.d().onPressDo({self.plantarBomba()})
 		// COLISIONES
-		game.onCollideDo(self,{elemento => elemento.chocarJugador()})
+		game.onCollideDo(self,{elemento => elemento.chocarConJugador()})
 	}
 	// movimientos
 	method mover(_direccion) {

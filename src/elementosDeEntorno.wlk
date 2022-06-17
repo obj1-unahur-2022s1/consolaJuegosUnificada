@@ -5,7 +5,7 @@ import jugador.*
 class Elemento {
 	const property position
 	method explotar() {}
-	method chocarJugador() {}
+	method chocarConJugador() {}
 	method cortaLaExplosion() = false
 	method dibujar() {
 		game.addVisual(self)
@@ -32,7 +32,7 @@ class ElementoDinamico inherits Elemento {
 // Bloques
 class Bloque inherits Elemento {
 	method image() = "assets/solidBlock.png"
-	override method chocarJugador() {
+	override method chocarConJugador() {
 		jugador.retroceder()
 	}
 	override method explotar() {
@@ -45,6 +45,9 @@ class BloqueVulnerable inherits Bloque {
 	override method image() = "assets/explodableBlock.png"
 	override method explotar() {
 		game.removeVisual(self)
+	}
+	override method chocarConJugador() {
+		jugador.retroceder()
 	}
 }
 
@@ -86,7 +89,7 @@ class Bomba inherits ElementoDinamico {
  		super()
  		frame %= 3
  	}
- 	override method chocarJugador() {
+ 	override method chocarConJugador() {
  		if(not acabaDeSerPlantada) {
 			jugador.retroceder()
 		}
@@ -126,4 +129,10 @@ class Bomba inherits ElementoDinamico {
  	}
  }
  
- 
+ // Portal
+class Portal inherits Elemento {
+	method image() = "assets/portal.png"
+	override method chocarConJugador() {
+		//
+	}
+}

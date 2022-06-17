@@ -1,11 +1,23 @@
 import wollok.game.*
 import jugador.*
 import elementosDeEntorno.*
+import enemigos.*
+
+object background {
+	method position() = game.at(0,0)
+	method explotar() {}
+	method chocarConJugador() {}
+	method cortaLaExplosion() = false
+	method image() = "assets/pisoMosaico.png"
+	method establecer() {
+		game.addVisual(self)
+	}
+}
 
 class Nivel {
 	const ancho = game.width() - 1
 	const alto = game.height() - 1
-	method configurar() {		
+	method configurar() {
 		// BLOQUES
 		self.dibujarBloquesFijos([2,4,6],[2,4,6,8,10])
 		self.ponerLimites()
@@ -31,8 +43,9 @@ class Nivel {
 
 object nivel1 inherits Nivel {
 	override method configurar() {
-		super()
+		background.establecer()
 		self.configurarEscenario()
+		super()
 	}
 	method configurarEscenario() {
 		const fila1 = [3,4,5,6,7] 		// Columnas	
@@ -45,6 +58,11 @@ object nivel1 inherits Nivel {
 		const listaColumnas = [fila1,fila2,fila3,fila4,fila5,fila6,fila7]
 		
 		(1..7).forEach{fila => self.dibujarBloquesVulnerables(listaColumnas.get(fila-1),fila)}//new BloqueVulnerable(position = game.at(posColumna,fila)).dibujar()}
+				
+		new Bichito(idDeEnemigo=1,position=game.at(5,5)).dibujar()
+		new Bichito(idDeEnemigo=2,position=game.at(1,7)).dibujar()
+		new Globo(idDeEnemigo=3,position=game.at(9,1)).dibujar()
+		new Globo(idDeEnemigo=4,position=game.at(11,5)).dibujar()
 	}
 	method dibujarBloquesVulnerables(listaPosColumnas,posFila) {
 		listaPosColumnas.forEach{posColumna => new BloqueVulnerable(position = game.at(posColumna,posFila)).dibujar()}

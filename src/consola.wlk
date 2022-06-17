@@ -4,7 +4,6 @@ import juego.*
 object consola {
 
 	const juegos = [
-		
 		bomberman,
 		new Juego(color = "Verde"),
 		new Juego(color = "Rojo"),
@@ -18,7 +17,6 @@ object consola {
 		game.height(12)
 		game.width(17)
 		game.title("Consola de juegos")
-		game.boardGround("assets/consola-menu.jpg")
 	}
 	
 	method iniciar(){
@@ -69,7 +67,7 @@ class MenuIconos{
 	}
 	
 	method horizontal(indice) = (indice-1)% ancho * espaciado
-	method vertical(indice) = (indice-5).div(ancho) * espaciado
+	method vertical(indice) = (indice-1).div(ancho) * espaciado
 	
 	method posicionDe(indice) =
 		posicionInicial
@@ -77,7 +75,7 @@ class MenuIconos{
 			.right(self.horizontal(indice))
 
 	method itemSeleccionado() = items.get(seleccionado)
-	method image() = "assets/cursor.png"
+	method image() = "cursor.png"
 	method position() = self.posicionDe(seleccionado)
 
 	method abajo(){

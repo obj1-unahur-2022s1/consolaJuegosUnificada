@@ -1,10 +1,10 @@
 import wollok.game.*
 import consola.*
-import juegoBomberman.*
+import bomberman.*
 
 class Juego {
 	var property position = null
-	var property color = null
+	var property color 
 	
 	method iniciar(){
         game.addVisual(object{method position()= game.center() method text() = "Juego "+color + " - <q> para salir"})		
@@ -18,15 +18,9 @@ class Juego {
 
 }
 
-object bomberman inherits Juego {
+object bomberman inherits Juego(color = null) {
 	override method iniciar() {
-		game.width(13)
-		game.height(9)
-		game.title("Bomberman Wollok Edition")
-		game.cellSize(64)
-		game.ground("assets/piso.png")
-	
 		nivel1.configurar()
 	}
-	override method image() = "assets/bman_head.png"
+	method image() = "bman_head.png"
 }

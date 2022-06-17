@@ -19,12 +19,13 @@ class Juego {
 }
 
 object bomberman inherits Juego {
+	var nivelActual = new Nivel1()
 	override method image() = "bman_head.png"
 	override method iniciar() {
-		var nivel = new Nivel1()
-		nivel.configurar()
+		nivelActual.configurar()
 	}
 	method avanzarNivel() {
 		
 	}
+	method nivelActual() = nivelActual
 }

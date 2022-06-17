@@ -99,6 +99,7 @@ object jugador inherits Personaje(position=game.at(1,1),direccion=sur) {
 	
 	method iniciar() {
 		self.rePosicionar()
+		bombasDisponibles = 1
 		game.addVisual(self)
 
 		keyboard.up().onPressDo({self.mover(norte)})
@@ -215,7 +216,7 @@ class Bomba {
 	const property position
 	var frame = 0
 	var acabaDeSerPlantada = true
-	var alcance = 1
+	var alcance = 2
 	
 	method initialize() {
 			game.addVisual(self)
@@ -233,12 +234,20 @@ class Bomba {
  	}
  	
  	method expandirExplosion() {
- 		new Flama(position=position)
- 		(1..alcance).forEach {n => new Flama(position=position.up(n))}
- 		(1..alcance).forEach {n => new Flama(position=position.right(n))}
- 		(1..alcance).forEach {n => new Flama(position=position.down(n))}
- 		(1..alcance).forEach {n => new Flama(position=position.left(n))}
- 	}
+         new Flama(position=position)
+         (1..self.alcanceAl(norte)).forEach {n => new Flama(position=position.up(n))}
+         (1..self.alcanceAl(este)).forEach {n => new Flama(position=position.right(n))}
+         (1..self.alcanceAl(sur)).forEach {n => new Flama(position=position.down(n))}
+         (1..self.alcanceAl(oeste)).forEach {n => new Flama(position=position.left(n))}
+     }
+     
+     method alcanceAl(direccion) {
+         const posiciones = []
+         var posActual = position
+         (1..alcance).forEach{n => posActual = direccion.siguiente(posActual);posiciones.add(posActual)}
+         const posicion = posiciones.findOrDefault({ pos => bomberman.nivelActual().hayUnBloqueEn(pos) },posActual)
+         return alcance.min(position.distance(posicion))
+     }
  	
  	method image() = "bman/bomba" + frame.toString() + ".png"
  	method animar() {

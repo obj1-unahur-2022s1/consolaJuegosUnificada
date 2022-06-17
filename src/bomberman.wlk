@@ -122,7 +122,7 @@ object jugador inherits Personaje(position=game.at(1,1),direccion=sur) {
 	}
 	
 	method morir() {
-		game.removeVisual(self)
+		game_over.display()
 	}
 
 	method puedePlantarBomba() = game.getObjectsIn(position).size() == 1 and bombasDisponibles > 0
@@ -305,4 +305,12 @@ object fondoDeNivel {
 	method establecer() {
 		game.addVisual(self)
 	}
+}
+
+object game_over {
+	method display() {
+		game.clear()
+		game.addVisualIn(self,game.origin())
+	}
+	method image() = "bman/gameover.jpg"
 }

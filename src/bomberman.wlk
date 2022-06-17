@@ -1,4 +1,6 @@
 import wollok.game.*
+import consola.*
+import juego.*
 
 // NIVELES
 
@@ -39,7 +41,7 @@ class Nivel {
 	}
 }
 
-object nivel1 inherits Nivel {
+class Nivel1 inherits Nivel {
 	override method configurar() {
 		fondoDeNivel.establecer()
 		super()
@@ -96,6 +98,7 @@ object jugador inherits Personaje(position=game.at(1,1),direccion=sur) {
 	var bombasDisponibles = 1
 	
 	method iniciar() {
+		self.rePosicionar()
 		game.addVisual(self)
 
 		keyboard.up().onPressDo({self.mover(norte)})
@@ -122,7 +125,7 @@ object jugador inherits Personaje(position=game.at(1,1),direccion=sur) {
 	}
 	
 	method morir() {
-		game_over.display()
+		gameOver.iniciar()
 	}
 
 	method puedePlantarBomba() = game.getObjectsIn(position).size() == 1 and bombasDisponibles > 0
@@ -132,7 +135,13 @@ object jugador inherits Personaje(position=game.at(1,1),direccion=sur) {
 		game.removeVisual(self)
 		game.addVisual(self)
 	}
+	
 	override method image() = "bman/bman_" + super()
+	
+	method rePosicionar() {
+		position = game.at(1,1)
+		direccion = sur
+	}
 }
 
 // ENEMIGOS
@@ -298,19 +307,51 @@ object oeste {
 
 object fondoDeNivel {
 	method position() = game.at(0,0)
-	method explotar() {}
-	method chocarConJugador() {}
-	method cortaLaExplosion() = false
 	method image() = "bman/pisoMosaico.png"
 	method establecer() {
 		game.addVisual(self)
 	}
 }
+// PANTALLA GAME OVER
 
-object game_over {
-	method display() {
+object gameOver {
+	method image() = "bman/gameover-final.png"
+	method position() = game.at(0,0)
+	
+	method iniciar() {
 		game.clear()
-		game.addVisualIn(self,game.origin())
+		game.addVisual(self)
+		cursor.iniciar()
 	}
-	method image() = "bman/gameover.jpg"
+
+	method reiniciar() {
+		game.clear()
+		bomberman.iniciar()
+	}
+
+	method menuInicial() {
+		game.clear()
+		consola.iniciar()
+	}
+}
+
+object cursor {
+	var opcion = 0
+	const posInicial = 7
+	method image() = "cursor.png"
+	method position() = game.at(posInicial + opcion * 2,2)
+	
+	method iniciar() {
+		keyboard.right().onPressDo{self.cambiarOpcion()}
+		keyboard.left().onPressDo{self.cambiarOpcion()}
+		keyboard.enter().onPressDo{self.accionarOpcion()}
+		game.addVisual(self)
+	}
+
+	method cambiarOpcion() {
+		opcion = (opcion + 1) % 2
+	}
+	method accionarOpcion() {
+		if (opcion == 0) gameOver.reiniciar() else gameOver.menuInicial()
+	}
 }

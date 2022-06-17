@@ -4,7 +4,7 @@ import bomberman.*
 
 class Juego {
 	var property position = null
-	var property color 
+	var property color = null
 	
 	method iniciar(){
         game.addVisual(object{method position()= game.center() method text() = "Juego "+color + " - <q> para salir"})		
@@ -18,9 +18,13 @@ class Juego {
 
 }
 
-object bomberman inherits Juego(color = null) {
+object bomberman inherits Juego {
+	override method image() = "bman_head.png"
 	override method iniciar() {
-		nivel1.configurar()
+		var nivel = new Nivel1()
+		nivel.configurar()
 	}
-	method image() = "bman_head.png"
+	method avanzarNivel() {
+		
+	}
 }

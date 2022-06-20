@@ -9,6 +9,7 @@ class Nivel {
 		// BLOQUES
 		self.ponerLimites()
 		self.ponerBloquesAlternados()
+		game.addVisualIn(barraDeEstado,game.at(0,11))
 	}
 	method ponerLimites() {
 		const ancho = game.width() - 1
@@ -47,6 +48,8 @@ class Nivel1 inherits Nivel {
 		// BICHITOS
 		new Enemigo(position=game.at(5,5),direccion=oeste).dibujar()
 		new Enemigo(position=game.at(1,7),direccion=oeste).dibujar()
+		// MUSICA
+		game.sound("bman/sonido/nivel1.wav").shouldLoop(true)
 	}
 	method configurarEscenario() {
 		const fila1 = [3,4,5,6,7] 		// Columnas	
@@ -208,6 +211,7 @@ class Bomba {
 	var acabaDeSerPlantada = true
 	
 	method colocar() {
+			game.sound("bman/sonido/bomba.mp3").play()
 			game.addVisual(self)
 			jugador.refrescarFrame()
 			game.onTick(800,self.identity().toString(),{self.animar()})
@@ -218,6 +222,7 @@ class Bomba {
 			game.removeVisual(self)
 			game.removeTickEvent(self.identity().toString())
  			jugador.agregarBombaDisponible()
+ 			game.sound("bman/sonido/explosion.mp3").play()
  			new Flama(position=position).dibujar()
 			new Explosion(direccion=norte,position=position).desencadenar()
 			new Explosion(direccion=este,position=position).desencadenar()
@@ -321,6 +326,10 @@ object oeste {
 
 object fondoDeNivel {
 	method image() = "bman/pisoMosaico.png"
+}
+
+object barraDeEstado {
+	method image() = "bman/barra-estado.png"
 }
 // PANTALLA GAME OVER
 

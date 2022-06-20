@@ -18,7 +18,7 @@ class Nivel {
 		(1..ancho-1).forEach { i => posiciones.add(new Position(x=i,y=0));posiciones.add(new Position(x=i,y=largo)) }
 		(0..largo).forEach { i => posiciones.add(new Position(x=0,y=i));posiciones.add(new Position(x=ancho,y=i)) }
 		
-		posiciones.forEach { pos => new Bloque(position = pos)}
+		posiciones.forEach { pos => game.addVisualIn(new Bloque(),pos)}
 	}
 	// Dibuja matriz de bloques fijos alternados
 	method ponerBloquesAlternados() {
@@ -33,24 +33,20 @@ class Nivel {
 		listaColumnas.forEach{columna => self.dibujarFilasBloques(listaFilas,columna)}
 	}
 	method dibujarFilasBloques(listaFilas,nroColumna) {
-		listaFilas.forEach{nroFila => new Bloque(position = game.at(nroColumna,nroFila))}
-	}
-	// El siguiente método todavía no se usa pero puede llegar a servir más adelante
-	method hayUnBloqueEn(posicion) {
-		return game.getObjectsIn(posicion).any { elemento => elemento.kindName() == 'a Bloque' or elemento.kindName() == 'a BloqueVulnerable'}
+		listaFilas.forEach{nroFila => game.addVisualIn(new Bloque(),game.at(nroColumna,nroFila))}
 	}
 }
 
 class Nivel1 inherits Nivel {
 	override method configurar() {
-		fondoDeNivel.establecer()
+		game.addVisualIn(fondoDeNivel,game.origin())
 		super()
 		self.configurarEscenario()
 		// JUGADOR
 		jugador.iniciar()
 		// BICHITOS
-		new Enemigo(id=1,position=game.at(5,5),direccion=oeste).dibujar()
-		new Enemigo(id=2,position=game.at(1,7),direccion=oeste).dibujar()
+		new Enemigo(position=game.at(5,5),direccion=oeste).dibujar()
+		new Enemigo(position=game.at(1,7),direccion=oeste).dibujar()
 	}
 	method configurarEscenario() {
 		const fila1 = [3,4,5,6,7] 		// Columnas	
@@ -65,15 +61,15 @@ class Nivel1 inherits Nivel {
 		(1..7).forEach{fila => self.dibujarBloquesVulnerables(listaColumnas.get(fila-1),fila)}
 	}
 	method dibujarBloquesVulnerables(listaPosColumnas,posFila) {
-		listaPosColumnas.forEach{posColumna => new BloqueVulnerable(position = game.at(posColumna,posFila))}
+		listaPosColumnas.forEach{posColumna => game.addVisualIn(new BloqueVulnerable(),game.at(posColumna,posFila))}
 	}
 }
 
 // PERSONAJES
 
 class Personaje {
-	var position
-	var direccion
+	var position = null
+	var direccion = null
 	var frame = 0
 	
 	method mover(_direccion) {
@@ -94,30 +90,32 @@ class Personaje {
 
 // JUGADOR
 
-object jugador inherits Personaje(position=game.at(1,1),direccion=sur) {
+object jugador inherits Personaje {
 	var bombasDisponibles = 1
 	
 	method iniciar() {
-		self.rePosicionar()
+		position = game.at(1,1)
+		direccion = sur
 		bombasDisponibles = 1
-		game.addVisual(self)
+		frame = 0
 
 		keyboard.up().onPressDo({self.mover(norte)})
 		keyboard.right().onPressDo({self.mover(este)})
 		keyboard.left().onPressDo({self.mover(oeste)})
 		keyboard.down().onPressDo({self.mover(sur)})
 		keyboard.d().onPressDo({self.plantarBomba()})
-
+		
+		game.addVisual(self)
 		game.onCollideDo(self,{elemento => elemento.chocarJugador()})
 	}
-
+	
 	method retroceder() { 
 		position = direccion.opuesto().siguiente(position)
 	}
 	
 	method plantarBomba() {
 		if (self.puedePlantarBomba())
-			new Bomba(position = position)
+			new Bomba(position = position).colocar()
 			bombasDisponibles -= 1
 	}
 	
@@ -138,25 +136,19 @@ object jugador inherits Personaje(position=game.at(1,1),direccion=sur) {
 	}
 	
 	override method image() = "bman/bman_" + super()
-	
-	method rePosicionar() {
-		position = game.at(1,1)
-		direccion = sur
-	}
 }
 
 // ENEMIGOS
 
 class Enemigo inherits Personaje {
-	const id
 	
 	method dibujar() {
 		game.addVisual(self)
-		game.onTick(500,id.toString(),{self.moverse()})
+		game.onTick(500,self.identity().toString(),{self.moverse()})
 	}
 	method explotar() {
 		game.removeVisual(self)
-		game.removeTickEvent(id.toString())
+		game.removeTickEvent(self.identity().toString().toString())
 	}
 	method chocarJugador() {
 		jugador.morir()
@@ -193,21 +185,19 @@ class Enemigo inherits Personaje {
 // BLOQUES
 
 class Bloque {
-	const property position
-	method initialize() {
-		game.addVisual(self)
-	}
 	method image() = "bman/solidBlock.png"
-	method explotar() {game.uniqueCollider(self).remover()}
+	method explotar() {
+		game.colliders(self).forEach { objeto => objeto.remover() }
+	}
 	method chocarJugador() {jugador.retroceder()}
 }
 
 class BloqueVulnerable inherits Bloque {
-	method initialize() {
-		game.addVisual(self)
-	}
 	override method image() = "bman/explodableBlock.png"
-	override method explotar() {game.removeVisual(self)}
+	override method explotar() {
+		game.colliders(self).first().remover()
+		game.removeVisual(self)
+	}
 }
 
 // HABILIDAD JUGADOR
@@ -216,39 +206,26 @@ class Bomba {
 	const property position
 	var frame = 0
 	var acabaDeSerPlantada = true
-	var alcance = 2
 	
-	method initialize() {
+	method colocar() {
 			game.addVisual(self)
 			jugador.refrescarFrame()
-			game.onTick(800,position.toString(),{self.animar()})
+			game.onTick(800,self.identity().toString(),{self.animar()})
  			game.schedule(3000,{self.explotar()})
 	}
  	method explotar() {
  		if(game.hasVisual(self)) {
 			game.removeVisual(self)
-			game.removeTickEvent(position.toString())
+			game.removeTickEvent(self.identity().toString())
  			jugador.agregarBombaDisponible()
-			self.expandirExplosion()
- 		}
+ 			new Flama(position=position).dibujar()
+			new Explosion(direccion=norte,position=position).desencadenar()
+			new Explosion(direccion=este,position=position).desencadenar()
+			new Explosion(direccion=sur,position=position).desencadenar()
+			new Explosion(direccion=oeste,position=position).desencadenar()	
+		}
  	}
- 	
- 	method expandirExplosion() {
-         new Flama(position=position)
-         (1..self.alcanceAl(norte)).forEach {n => new Flama(position=position.up(n))}
-         (1..self.alcanceAl(este)).forEach {n => new Flama(position=position.right(n))}
-         (1..self.alcanceAl(sur)).forEach {n => new Flama(position=position.down(n))}
-         (1..self.alcanceAl(oeste)).forEach {n => new Flama(position=position.left(n))}
-     }
-     
-     method alcanceAl(direccion) {
-         const posiciones = []
-         var posActual = position
-         (1..alcance).forEach{n => posActual = direccion.siguiente(posActual);posiciones.add(posActual)}
-         const posicion = posiciones.findOrDefault({ pos => bomberman.nivelActual().hayUnBloqueEn(pos) },posActual)
-         return alcance.min(position.distance(posicion))
-     }
- 	
+ 		
  	method image() = "bman/bomba" + frame.toString() + ".png"
  	method animar() {
  		frame = (frame + 1) % 3
@@ -263,13 +240,41 @@ class Bomba {
  	}
  }
  
+class Explosion {
+	const direccion
+	var position
+	var posicionesAlcanzadas = 0
+	var alcance = 2
+	method desencadenar() {
+		game.addVisual(self)
+		game.onTick(100,self.identity().toString(),{self.avanzar()})
+	}
+	method avanzar() {
+		if (posicionesAlcanzadas == alcance) {
+			self.remover()
+		}
+		else {
+			position = direccion.siguiente(position)
+			posicionesAlcanzadas += 1
+			new Flama(position=position).dibujar()
+		}
+	}
+	method remover() {
+		game.removeVisual(self)
+		game.removeTickEvent(self.identity().toString())
+	}
+	method explotar() {}
+	method position() = position
+	method image() = "bman/explosion.png"
+}
+ 
 class Flama {
 	const property position
 	var frame = 0
-	method initialize() {
+	method dibujar() {
 		game.addVisual(self)
 		jugador.refrescarFrame()
-		game.onTick(100,position.toString(),{self.animar()})
+		game.onTick(100,self.identity().toString(),{self.animar()})
 		game.onCollideDo(self,{elemento => elemento.explotar()})
 		game.schedule(2000,{self.remover()})
 	}
@@ -277,7 +282,7 @@ class Flama {
 	method remover() {
 		if(game.hasVisual(self)) {
 			game.removeVisual(self)
-			game.removeTickEvent(position.toString())
+			game.removeTickEvent(self.identity().toString())
 			jugador.agregarBombaDisponible()
 		}
 	}
@@ -315,21 +320,16 @@ object oeste {
 // FONDO
 
 object fondoDeNivel {
-	method position() = game.at(0,0)
 	method image() = "bman/pisoMosaico.png"
-	method establecer() {
-		game.addVisual(self)
-	}
 }
 // PANTALLA GAME OVER
 
 object gameOver {
 	method image() = "bman/gameover-final.png"
-	method position() = game.at(0,0)
 	
 	method iniciar() {
 		game.clear()
-		game.addVisual(self)
+		game.addVisualIn(self,game.origin())
 		cursor.iniciar()
 	}
 

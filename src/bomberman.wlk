@@ -127,7 +127,10 @@ object jugador inherits Personaje {
 	}
 	
 	method morir() {
-		gameOver.iniciar()
+		game.clear()
+		menu.opcionSeleccionada(opcionContinuar)
+		menu.fondoDelMenu(fondoGameOver)
+		menu.iniciar()
 	}
 
 	method puedePlantarBomba() = game.getObjectsIn(position).size() == 1 and bombasDisponibles > 0
@@ -331,45 +334,92 @@ object fondoDeNivel {
 object barraDeEstado {
 	method image() = "bman/barra-estado.png"
 }
-// PANTALLA GAME OVER
+// MENU
 
-object gameOver {
-	method image() = "bman/gameover-final.png"
-	
+object menu {
+	var property opcionSeleccionada
+	var property fondoDelMenu
+
 	method iniciar() {
-		game.clear()
-		game.addVisualIn(self,game.origin())
-		cursor.iniciar()
+		keyboard.up().onPressDo{self.cambiarOpcionSeleccionadaA(opcionSeleccionada.opcionSuperior())}
+		keyboard.down().onPressDo{self.cambiarOpcionSeleccionadaA(opcionSeleccionada.opcionInferior())}
+		keyboard.enter().onPressDo{opcionSeleccionada.seleccionar()}
+		flechaMenu.position(opcionSeleccionada.posicion())
+		game.addVisual(fondoDelMenu)
+		game.addVisual(flechaMenu)
 	}
-
-	method reiniciar() {
-		game.clear()
-		bomberman.iniciar()
-	}
-
-	method menuInicial() {
-		game.clear()
-		consola.iniciar()
+	method cambiarOpcionSeleccionadaA(opcion) {
+		opcionSeleccionada = opcion
+		flechaMenu.position(opcionSeleccionada.posicion())
 	}
 }
 
-object cursor {
-	var opcion = 0
-	const posInicial = 7
-	method image() = "cursor.png"
-	method position() = game.at(posInicial + opcion * 2,2)
+object opcionComenzarJuego {
+	method posicion() = game.at(5,7)
+
+	method seleccionar() {bomberman.jugar()}
 	
-	method iniciar() {
-		keyboard.right().onPressDo{self.cambiarOpcion()}
-		keyboard.left().onPressDo{self.cambiarOpcion()}
-		keyboard.enter().onPressDo{self.accionarOpcion()}
-		game.addVisual(self)
+	method opcionSuperior() = opcionSalir
+
+	method opcionInferior() = opcionControles
+}
+
+object opcionControles {
+	method posicion() = game.at(4,5)
+	
+	method seleccionar() {} //En progreso
+	
+	method opcionSuperior() = opcionComenzarJuego
+	
+	method opcionInferior() = opcionSalir
+}
+
+object opcionSalir {
+	method posicion() = game.at(5,3)
+
+	method seleccionar() {consola.iniciar()}
+
+	method opcionSuperior() = opcionControles
+
+	method opcionInferior() = opcionComenzarJuego
+}
+
+object opcionContinuar {
+	method posicion() = game.at(6,2)
+
+	method seleccionar() {bomberman.jugar()}
+
+	method opcionSuperior() = opcionMenuPrincipal
+
+	method opcionInferior() = self.opcionSuperior()
+}
+
+object opcionMenuPrincipal {
+	method posicion() = game.at(6,1)
+
+	method seleccionar() {
+		game.clear()
+		menu.opcionSeleccionada(opcionComenzarJuego)
+		menu.fondoDelMenu(fondoMenu)
+		menu.iniciar()
 	}
 
-	method cambiarOpcion() {
-		opcion = (opcion + 1) % 2
-	}
-	method accionarOpcion() {
-		if (opcion == 0) gameOver.reiniciar() else gameOver.menuInicial()
-	}
+	method opcionSuperior() = opcionContinuar
+
+	method opcionInferior() = self.opcionSuperior()
+}
+
+object fondoMenu {
+	method position() = game.at(0,0)
+	method image() = "bman/menuBomberman.png"
+}
+
+object fondoGameOver {
+	method position() = game.at(0,0)
+	method image() = "bman/menuGameOver.png"
+}
+
+object flechaMenu {
+	var property position
+	method image() = "bman/flecha.png"
 }

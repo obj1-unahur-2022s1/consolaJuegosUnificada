@@ -21,7 +21,7 @@ object consola {
 	}
 	
 	method iniciar(){
-		menu = new MenuIconos(posicionInicial = game.center().left(2))	
+		menu = new MenuIconos(posicionInicial = game.at(6,4)) //game.center().left(2))	
 		game.addVisual(menu)
 		juegos.forEach{juego=>menu.agregarItem(juego)}
 		menu.dibujar()

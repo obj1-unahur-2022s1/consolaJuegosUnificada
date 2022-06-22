@@ -14,18 +14,24 @@ class Juego {
 
 	}
 	method image() = "juego" + color + ".png"
-	
 
 }
 
-object bomberman inherits Juego {
-	var nivelActual = new Nivel1()
-	override method image() = "bman_head.png"
-	override method iniciar() {
+object bomberman {
+	var property position
+	var property nivelActual = new Nivel1()
+	method image() = "bman_head.png"
+	method iniciar() {
+		game.clear()
+		menu.opcionSeleccionada(opcionComenzarJuego)
+		menu.fondoDelMenu(fondoMenu)
+		menu.iniciar()
+	}
+	method jugar() {
+		game.clear()
 		nivelActual.configurar()
 	}
-	method avanzarNivel() {
-		
-	}
-	method nivelActual() = nivelActual
+	method avanzarNivel() {}
+	
+	method terminar() {}
 }

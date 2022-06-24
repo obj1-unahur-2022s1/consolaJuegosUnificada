@@ -36,6 +36,7 @@ class Nivel {
 	method dibujarFilasBloques(listaFilas,nroColumna) {
 		listaFilas.forEach{nroFila => game.addVisualIn(new Bloque(),game.at(nroColumna,nroFila))}
 	}
+	
 }
 
 class Nivel1 inherits Nivel {
@@ -343,7 +344,7 @@ object menu {
 	method iniciar() {
 		keyboard.up().onPressDo{self.cambiarOpcionSeleccionadaA(opcionSeleccionada.opcionSuperior())}
 		keyboard.down().onPressDo{self.cambiarOpcionSeleccionadaA(opcionSeleccionada.opcionInferior())}
-		keyboard.enter().onPressDo{opcionSeleccionada.seleccionar()}
+		keyboard.enter().onPressDo{ opcionSeleccionada.seleccionar() game.sound("bman/sonido/seleccion2.mp3").play() }
 		flechaMenu.position(opcionSeleccionada.posicion())
 		game.addVisual(fondoDelMenu)
 		game.addVisual(flechaMenu)
@@ -351,6 +352,16 @@ object menu {
 	method cambiarOpcionSeleccionadaA(opcion) {
 		opcionSeleccionada = opcion
 		flechaMenu.position(opcionSeleccionada.posicion())
+		game.sound("bman/sonido/seleccion.mp3").play()
+	}
+}
+
+object menuControles {
+	var property fondoDelMenu
+
+	method iniciar() {
+		keyboard.enter().onPressDo{ opcionSalir.seleccionar() game.sound("bman/sonido/seleccion2.mp3").play() }
+		game.addVisual(fondoDelMenu)
 	}
 }
 
@@ -367,7 +378,11 @@ object opcionComenzarJuego {
 object opcionControles {
 	method posicion() = game.at(4,5)
 	
-	method seleccionar() {} //En progreso
+	method seleccionar() {
+		game.clear()
+		menuControles.fondoDelMenu(fondoControles)
+		menuControles.iniciar()
+	} //En progreso
 	
 	method opcionSuperior() = opcionComenzarJuego
 	
@@ -407,6 +422,11 @@ object opcionMenuPrincipal {
 	method opcionSuperior() = opcionContinuar
 
 	method opcionInferior() = self.opcionSuperior()
+}
+
+object fondoControles {
+	method position() = game.at(0,0)
+	method image() = "bman/menuControles.png"
 }
 
 object fondoMenu {

@@ -13,6 +13,7 @@ class Juego {
 	method terminar(){
 
 	}
+	
 	method image() = "juego" + color + ".png"
 
 }

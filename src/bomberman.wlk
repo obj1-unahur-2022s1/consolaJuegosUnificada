@@ -1,15 +1,28 @@
 import wollok.game.*
-import consola.*
-import juego.*
-
+import menu.*
 // NIVELES
 
-class Nivel {
+class Nivel1 {
+	
+	method initialize() {
+		game.addVisualIn(pantallaNivel1,game.origin())
+		game.schedule(3000,{game.clear();self.configurar()})
+	}
+	
 	method configurar() {
+		game.addVisualIn(fondoDeNivel,game.origin())
 		// BLOQUES
 		self.ponerLimites()
 		self.ponerBloquesAlternados()
-		game.addVisualIn(barraDeEstado,game.at(0,11))
+		self.ponerBloquesVulnerables()
+		// EL BLOQUE CON EL PORTAL
+		game.addVisual(new BloqueConPortal(position=game.at(7,7)))
+		// BICHITOS
+		new Enemigo(position=game.at(5,5),direccion=oeste).dibujar()
+		new Enemigo(position=game.at(1,7),direccion=oeste).dibujar()
+		// JUGADOR
+		game.addVisualIn(estado_jugador,game.at(2,11))
+		jugador.iniciar()
 	}
 	method ponerLimites() {
 		const ancho = game.width() - 1
@@ -19,9 +32,8 @@ class Nivel {
 		(1..ancho-1).forEach { i => posiciones.add(new Position(x=i,y=0));posiciones.add(new Position(x=i,y=largo)) }
 		(0..largo).forEach { i => posiciones.add(new Position(x=0,y=i));posiciones.add(new Position(x=ancho,y=i)) }
 		
-		posiciones.forEach { pos => game.addVisualIn(new Bloque(),pos)}
+		posiciones.forEach { pos => game.addVisual(new Bloque(position=pos))}
 	}
-	// Dibuja matriz de bloques fijos alternados
 	method ponerBloquesAlternados() {
 		const ancho = game.width() - 1
 		const largo = game.height() - 1
@@ -31,45 +43,24 @@ class Nivel {
 		(2..largo-2).filter {numero => numero.even()}.forEach {numero => listaFilas.add(numero)}
 		(2..ancho-2).filter {numero => numero.even()}.forEach {numero => listaColumnas.add(numero)}
 		
-		listaColumnas.forEach{columna => self.dibujarFilasBloques(listaFilas,columna)}
+		listaColumnas.forEach{columna => self.dibujarColumnaDeBloques(listaFilas,columna)}
 	}
-	method dibujarFilasBloques(listaFilas,nroColumna) {
-		listaFilas.forEach{nroFila => game.addVisualIn(new Bloque(),game.at(nroColumna,nroFila))}
+	method ponerBloquesVulnerables() {		
+		self.dibujarFilaDeBloquesVulnerables([3,4,5,6,7],1)
+		self.dibujarFilaDeBloquesVulnerables([3,5,11],2)
+		self.dibujarFilaDeBloquesVulnerables([2,3,4,5,6],3)
+		self.dibujarFilaDeBloquesVulnerables([1,3,5,7,11],4)
+		self.dibujarFilaDeBloquesVulnerables([2,3,9],5)
+		self.dibujarFilaDeBloquesVulnerables([1,3,5,7],6)
+		self.dibujarFilaDeBloquesVulnerables([3],7)
 	}
-	
-}
-
-class Nivel1 inherits Nivel {
-	override method configurar() {
-		game.addVisualIn(fondoDeNivel,game.origin())
-		super()
-		self.configurarEscenario()
-		// JUGADOR
-		jugador.iniciar()
-		// BICHITOS
-		new Enemigo(position=game.at(5,5),direccion=oeste).dibujar()
-		new Enemigo(position=game.at(1,7),direccion=oeste).dibujar()
-		// MUSICA
-		game.sound("bman/sonido/nivel1.wav").shouldLoop(true)
+	method dibujarColumnaDeBloques(filas,columna) {
+		filas.forEach{nroFila => game.addVisual(new Bloque(position=game.at(columna,nroFila)))}
 	}
-	method configurarEscenario() {
-		const fila1 = [3,4,5,6,7] 		// Columnas	
-		const fila2 = [3,5,11]			// bloques fijos en 2,4,6,8,10
-		const fila3 = [2,3,4,5,6]
-		const fila4 = [1,3,5,7,11]		// bloques fijos en 2,4,6,8,10
-		const fila5 = [2,3,9]
-		const fila6 = [1,3,5,7]			// bloques fijos en 2,4,6,8,10
-		const fila7 = [3,7]
-		const listaColumnas = [fila1,fila2,fila3,fila4,fila5,fila6,fila7]
-		
-		(1..7).forEach{fila => self.dibujarBloquesVulnerables(listaColumnas.get(fila-1),fila)}
-	}
-	method dibujarBloquesVulnerables(listaPosColumnas,posFila) {
-		listaPosColumnas.forEach{posColumna => game.addVisualIn(new BloqueVulnerable(),game.at(posColumna,posFila))}
+	method dibujarFilaDeBloquesVulnerables(columnas,fila) {
+		columnas.forEach{nroColumna => game.addVisual(new BloqueVulnerable(position=game.at(nroColumna,fila)))}
 	}
 }
-
-// PERSONAJES
 
 class Personaje {
 	var position = null
@@ -92,10 +83,9 @@ class Personaje {
 	method image() = direccion.toString() + frame.toString() + ".png"
 }
 
-// JUGADOR
-
 object jugador inherits Personaje {
-	var bombasDisponibles = 1
+	var property bombasDisponibles = 1
+	var property rangoDeLaExplosion = 1
 	
 	method iniciar() {
 		position = game.at(1,1)
@@ -118,9 +108,10 @@ object jugador inherits Personaje {
 	}
 	
 	method plantarBomba() {
-		if (self.puedePlantarBomba())
+		if (self.puedePlantarBomba()) {
 			new Bomba(position = position).colocar()
-			bombasDisponibles -= 1
+			bombasDisponibles -= 1	
+		}
 	}
 	
 	method explotar() {
@@ -135,7 +126,8 @@ object jugador inherits Personaje {
 	}
 
 	method puedePlantarBomba() = game.getObjectsIn(position).size() == 1 and bombasDisponibles > 0
-	method agregarBombaDisponible() {bombasDisponibles += 1}
+	method powerUpBomba() {bombasDisponibles += 1}
+	method powerUpExplosion() {rangoDeLaExplosion += 1}
 	
 	method refrescarFrame() {
 		game.removeVisual(self)
@@ -144,8 +136,6 @@ object jugador inherits Personaje {
 	
 	override method image() = "bman/bman_" + super()
 }
-
-// ENEMIGOS
 
 class Enemigo inherits Personaje {
 	
@@ -156,6 +146,7 @@ class Enemigo inherits Personaje {
 	method explotar() {
 		game.removeVisual(self)
 		game.removeTickEvent(self.identity().toString().toString())
+		game.sound("bman/sonido/bichito_muere.mp3").play()
 	}
 	method chocarJugador() {
 		jugador.morir()
@@ -189,9 +180,8 @@ class Enemigo inherits Personaje {
 	
 }
 
-// BLOQUES
-
 class Bloque {
+	const property position
 	method image() = "bman/solidBlock.png"
 	method explotar() {
 		game.colliders(self).forEach { objeto => objeto.remover() }
@@ -204,10 +194,26 @@ class BloqueVulnerable inherits Bloque {
 	override method explotar() {
 		game.colliders(self).first().remover()
 		game.removeVisual(self)
+		self.soltarPowerUp()
+	}
+	method soltarPowerUp() {
+		const suerte = (1..20).anyOne()
+		if(suerte == 1) {
+			game.addVisualIn(new PowerUpBomba(),position)
+		}
+		else if(suerte == 2) {
+			game.addVisualIn(new PowerUpExplosion(),position)
+		}
 	}
 }
 
-// HABILIDAD JUGADOR
+class BloqueConPortal inherits BloqueVulnerable {
+	override method explotar() {
+		game.colliders(self).first().remover()
+		game.removeVisual(self)
+		game.addVisualIn(new Portal(),position)
+	}
+}
 
 class Bomba {
 	const property position
@@ -225,7 +231,7 @@ class Bomba {
  		if(game.hasVisual(self)) {
 			game.removeVisual(self)
 			game.removeTickEvent(self.identity().toString())
- 			jugador.agregarBombaDisponible()
+ 			jugador.powerUpBomba()
  			game.sound("bman/sonido/explosion.mp3").play()
  			new Flama(position=position).dibujar()
 			new Explosion(direccion=norte,position=position).desencadenar()
@@ -253,13 +259,13 @@ class Explosion {
 	const direccion
 	var position
 	var posicionesAlcanzadas = 0
-	var alcance = 2
+
 	method desencadenar() {
 		game.addVisual(self)
 		game.onTick(100,self.identity().toString(),{self.avanzar()})
 	}
 	method avanzar() {
-		if (posicionesAlcanzadas == alcance) {
+		if (posicionesAlcanzadas == jugador.rangoDeLaExplosion()) {
 			self.remover()
 		}
 		else {
@@ -274,7 +280,6 @@ class Explosion {
 	}
 	method explotar() {}
 	method position() = position
-	method image() = "bman/explosion.png"
 }
  
 class Flama {
@@ -292,7 +297,6 @@ class Flama {
 		if(game.hasVisual(self)) {
 			game.removeVisual(self)
 			game.removeTickEvent(self.identity().toString())
-			jugador.agregarBombaDisponible()
 		}
 	}
 	
@@ -304,7 +308,48 @@ class Flama {
 
 }
 
-// DIRECCIONES
+class PowerUp {
+	method chocarJugador() {
+		game.removeVisual(self)
+		game.sound("bman/sonido/powerUp.mp3").play()
+	}
+	method explotar() {}
+}
+class PowerUpBomba inherits PowerUp {
+	method image() = "bman/bombPowerUp.png"
+	override method chocarJugador() {
+		super()
+		jugador.powerUpBomba()
+	}
+}
+
+class PowerUpExplosion inherits PowerUp{
+	method image() = "bman/flamePowerUp.png"
+	override method chocarJugador() {
+		super()
+		jugador.powerUpExplosion()
+	}
+
+}
+
+class Portal {
+	method image() = "bman/portal.png"
+	method chocarJugador() {
+
+	}
+	method explotar() {}
+}
+
+
+
+object estado_jugador {
+	method text() = "bombas = "+jugador.bombasDisponibles().toString()+" | explosión = x"+jugador.rangoDeLaExplosion().toString()
+	method textColor() = "FFFFFFFF"
+}
+
+object fondoDeNivel {
+	method image() = "bman/pisoMosaico.png"
+}
 
 object norte {
 	method siguiente(posicion) = posicion.up(1)
@@ -324,122 +369,4 @@ object sur {
 object oeste {
 	method siguiente(posicion) = posicion.left(1)
 	method opuesto() = este
-}
-
-// FONDO
-
-object fondoDeNivel {
-	method image() = "bman/pisoMosaico.png"
-}
-
-object barraDeEstado {
-	method image() = "bman/barra-estado.png"
-}
-// MENU
-
-object menu {
-	var property opcionSeleccionada
-	var property fondoDelMenu
-
-	method iniciar() {
-		keyboard.up().onPressDo{self.cambiarOpcionSeleccionadaA(opcionSeleccionada.opcionSuperior())}
-		keyboard.down().onPressDo{self.cambiarOpcionSeleccionadaA(opcionSeleccionada.opcionInferior())}
-		keyboard.enter().onPressDo{ opcionSeleccionada.seleccionar() game.sound("bman/sonido/seleccion2.mp3").play() }
-		flechaMenu.position(opcionSeleccionada.posicion())
-		game.addVisual(fondoDelMenu)
-		game.addVisual(flechaMenu)
-	}
-	method cambiarOpcionSeleccionadaA(opcion) {
-		opcionSeleccionada = opcion
-		flechaMenu.position(opcionSeleccionada.posicion())
-		game.sound("bman/sonido/seleccion.mp3").play()
-	}
-}
-
-object menuControles {
-	var property fondoDelMenu
-
-	method iniciar() {
-		keyboard.enter().onPressDo{ consola.iniciar() game.sound("bman/sonido/seleccion2.mp3").play() }
-		game.addVisual(fondoDelMenu)
-	}
-}
-
-object opcionComenzarJuego {
-	method posicion() = game.at(5,7)
-
-	method seleccionar() {bomberman.jugar()}
-	
-	method opcionSuperior() = opcionSalir
-
-	method opcionInferior() = opcionControles
-}
-
-object opcionControles {
-	method posicion() = game.at(4,5)
-	
-	method seleccionar() {
-		game.clear()
-		menuControles.fondoDelMenu(fondoControles)
-		menuControles.iniciar()
-	} //En progreso
-	
-	method opcionSuperior() = opcionComenzarJuego
-	
-	method opcionInferior() = opcionSalir
-}
-
-object opcionSalir {
-	method posicion() = game.at(5,3)
-
-	method seleccionar() {consola.iniciar()}
-
-	method opcionSuperior() = opcionControles
-
-	method opcionInferior() = opcionComenzarJuego
-}
-
-object opcionContinuar {
-	method posicion() = game.at(6,2)
-
-	method seleccionar() {bomberman.jugar()}
-
-	method opcionSuperior() = opcionMenuPrincipal
-
-	method opcionInferior() = self.opcionSuperior()
-}
-
-object opcionMenuPrincipal {
-	method posicion() = game.at(6,1)
-
-	method seleccionar() {
-		game.clear()
-		menu.opcionSeleccionada(opcionComenzarJuego)
-		menu.fondoDelMenu(fondoMenu)
-		menu.iniciar()
-	}
-
-	method opcionSuperior() = opcionContinuar
-
-	method opcionInferior() = self.opcionSuperior()
-}
-
-object fondoControles {
-	method position() = game.at(0,0)
-	method image() = "bman/menuControles.png"
-}
-
-object fondoMenu {
-	method position() = game.at(0,0)
-	method image() = "bman/menuBomberman.png"
-}
-
-object fondoGameOver {
-	method position() = game.at(0,0)
-	method image() = "bman/menuGameOver.png"
-}
-
-object flechaMenu {
-	var property position
-	method image() = "bman/flecha.png"
 }

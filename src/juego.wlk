@@ -1,6 +1,7 @@
 import wollok.game.*
 import consola.*
 import bomberman.*
+import menu.*
 
 class Juego {
 	var property position = null
@@ -20,7 +21,7 @@ class Juego {
 
 object bomberman {
 	var property position
-	var property nivelActual = new Nivel1()
+	var property nivelActual
 	method image() = "bman_head.png"
 	method iniciar() {
 		game.clear()
@@ -30,7 +31,7 @@ object bomberman {
 	}
 	method jugar() {
 		game.clear()
-		nivelActual.configurar()
+		nivelActual = new Nivel1()
 	}
 	method avanzarNivel() {}
 	

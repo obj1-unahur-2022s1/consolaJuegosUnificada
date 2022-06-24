@@ -360,7 +360,7 @@ object menuControles {
 	var property fondoDelMenu
 
 	method iniciar() {
-		keyboard.enter().onPressDo{ opcionSalir.seleccionar() game.sound("bman/sonido/seleccion2.mp3").play() }
+		keyboard.enter().onPressDo{ consola.iniciar() game.sound("bman/sonido/seleccion2.mp3").play() }
 		game.addVisual(fondoDelMenu)
 	}
 }

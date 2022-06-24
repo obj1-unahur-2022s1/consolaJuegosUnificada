@@ -6,7 +6,11 @@ class Nivel1 {
 	
 	method initialize() {
 		game.addVisualIn(pantallaNivel1,game.origin())
-		game.schedule(3000,{game.clear();self.configurar()})
+		game.schedule(3000,
+			{
+				game.clear()
+				self.configurar()
+			})
 	}
 	
 	method configurar() {
@@ -119,10 +123,17 @@ object jugador inherits Personaje {
 	}
 	
 	method morir() {
-		game.clear()
-		menu.opcionSeleccionada(opcionContinuar)
-		menu.fondoDelMenu(fondoGameOver)
-		menu.iniciar()
+		game.sound("bman/sonido/jugador_muere.mp3").play()
+		position = game.at(-1,-1)
+		game.schedule(2000,
+			{
+				game.clear()
+				menu.opcionSeleccionada(opcionContinuar)
+				menu.fondoDelMenu(fondoGameOver)
+				menu.iniciar()
+				
+			}
+		)
 	}
 
 	method puedePlantarBomba() = game.getObjectsIn(position).size() == 1 and bombasDisponibles > 0
@@ -197,7 +208,7 @@ class BloqueVulnerable inherits Bloque {
 		self.soltarPowerUp()
 	}
 	method soltarPowerUp() {
-		const suerte = (1..20).anyOne()
+		const suerte = (1..10).anyOne()
 		if(suerte == 1) {
 			game.addVisualIn(new PowerUpBomba(),position)
 		}

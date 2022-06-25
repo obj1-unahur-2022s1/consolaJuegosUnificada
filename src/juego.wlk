@@ -21,19 +21,8 @@ class Juego {
 
 object bomberman {
 	var property position
-	var property nivelActual
 	method image() = "bman_head.png"
 	method iniciar() {
-		game.clear()
-		menu.opcionSeleccionada(opcionComenzarJuego)
-		menu.fondoDelMenu(fondoMenu)
-		menu.iniciar()
+		pantallaDeInicio.iniciar()
 	}
-	method jugar() {
-		game.clear()
-		nivelActual = new Nivel1()
-	}
-	method avanzarNivel() {}
-	
-	method terminar() {}
 }

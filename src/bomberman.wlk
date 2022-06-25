@@ -5,7 +5,7 @@ import menu.*
 class Nivel1 {
 	
 	method initialize() {
-		game.addVisualIn(pantallaNivel1,game.origin())
+		game.addVisualIn(transicionNivelI,game.origin())
 		game.schedule(3000,
 			{
 				game.clear()
@@ -96,6 +96,7 @@ object jugador inherits Personaje {
 		position = game.at(1,1)
 		direccion = sur
 		bombasDisponibles = 1
+		rangoDeLaExplosion = 1
 		frame = 0
 
 		keyboard.up().onPressDo({self.mover(norte)})
@@ -125,16 +126,8 @@ object jugador inherits Personaje {
 	
 	method morir() {
 		game.sound("bman/sonido/jugador_muere.mp3").play()
-		position = game.at(-1,-1)
-		game.schedule(2000,
-			{
-				game.clear()
-				menu.opcionSeleccionada(opcionContinuar)
-				menu.fondoDelMenu(fondoGameOver)
-				menu.iniciar()
-				
-			}
-		)
+		game.removeVisual(self)
+		game.schedule(2000,{pantallaDeGameOver.iniciar()})
 	}
 
 	method puedePlantarBomba() = game.getObjectsIn(position).size() == 1 and bombasDisponibles > 0
@@ -142,8 +135,9 @@ object jugador inherits Personaje {
 	method powerUpExplosion() {rangoDeLaExplosion += 1}
 	
 	method refrescarFrame() {
-		game.removeVisual(self)
-		game.addVisual(self)
+		if (game.hasVisual(self))
+			game.removeVisual(self)
+			game.addVisual(self)
 	}
 	
 	override method image() = "bman/bman_" + super()

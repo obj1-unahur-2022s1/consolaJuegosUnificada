@@ -25,7 +25,8 @@ class Nivel1 {
 		new Enemigo(position=game.at(5,5),direccion=oeste).dibujar()
 		new Enemigo(position=game.at(1,7),direccion=oeste).dibujar()
 		// JUGADOR
-		game.addVisualIn(estado_jugador,game.at(2,11))
+		game.addVisualIn(estado_jugador_bombas,game.at(5,11))
+		game.addVisualIn(estado_jugador_explosion,game.at(10.9,11))
 		jugador.iniciar()
 	}
 	method ponerLimites() {
@@ -353,8 +354,13 @@ class Portal {
 
 
 
-object estado_jugador {
-	method text() = "bombas = "+jugador.bombasDisponibles().toString()+" | explosión = x"+jugador.rangoDeLaExplosion().toString()
+object estado_jugador_bombas {
+	method text() = jugador.bombasDisponibles().toString() 
+	method textColor() = "FFFFFFFF"
+}
+
+object estado_jugador_explosion {
+	method text() = "x" +jugador.rangoDeLaExplosion().toString()
 	method textColor() = "FFFFFFFF"
 }
 

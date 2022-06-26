@@ -20,7 +20,8 @@ object nivel1 {
 		game.addVisual(new BloqueConPortal(position=game.at(7,7)))
 		// BICHITOS
 		new Enemigo(position=game.at(5,5),direccion=oeste).dibujar()
-		new Enemigo(position=game.at(1,7),direccion=oeste).dibujar()
+		new Enemigo(position=game.at(2,7),direccion=oeste).dibujar()
+		new Enemigo(position=game.at(9,3),direccion=oeste).dibujar()
 		// JUGADOR
 		game.addVisualIn(jugador_bombas,game.at(5,11))
 		game.addVisualIn(jugador_explosion,game.at(10.9,11))
@@ -48,13 +49,15 @@ object nivel1 {
 		listaColumnas.forEach{columna => self.dibujarColumnaDeBloques(listaFilas,columna)}
 	}
 	method ponerBloquesVulnerables() {		
-		self.dibujarFilaDeBloquesVulnerables([3,4,5,6,7],1)
-		self.dibujarFilaDeBloquesVulnerables([3,5,11],2)
-		self.dibujarFilaDeBloquesVulnerables([2,3,4,5,6],3)
-		self.dibujarFilaDeBloquesVulnerables([1,3,5,7,11],4)
-		self.dibujarFilaDeBloquesVulnerables([2,3,9],5)
-		self.dibujarFilaDeBloquesVulnerables([1,3,5,7],6)
-		self.dibujarFilaDeBloquesVulnerables([3],7)
+		self.dibujarFilaDeBloquesVulnerables([3,4,5,6,7,15],1)
+		self.dibujarFilaDeBloquesVulnerables([3,5,11,9,13],2)
+		self.dibujarFilaDeBloquesVulnerables([2,3,4,5,6,12,13],3)
+		self.dibujarFilaDeBloquesVulnerables([1,3,5,7,11,15],4)
+		self.dibujarFilaDeBloquesVulnerables([2,3,9,11,14,15],5)
+		self.dibujarFilaDeBloquesVulnerables([1,3,5,7,13,15],6)
+		self.dibujarFilaDeBloquesVulnerables([1,4,11,12],7)
+		self.dibujarFilaDeBloquesVulnerables([3,7,9,13],8)
+		self.dibujarFilaDeBloquesVulnerables([1,5,6],9)
 	}
 	method dibujarColumnaDeBloques(filas,columna) {
 		filas.forEach{nroFila => game.addVisual(new Bloque(position=game.at(columna,nroFila)))}

@@ -39,7 +39,7 @@ object pantallaDeInicio inherits Menu {
 object pantallaDeControles inherits Menu {
 	override method iniciar() {
 		game.clear()
-		keyboard.enter().onPressDo{ consola.iniciar() selectionSoundEffect.play() }
+		keyboard.enter().onPressDo{ pantallaDeInicio.iniciar() selectionSoundEffect.play() }
 		game.addVisualIn(self,game.origin())
 	}
 	method image() = "bman/menuControles.png"

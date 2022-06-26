@@ -28,6 +28,7 @@ class Personaje {
 object jugador inherits Personaje {
 	var property bombasDisponibles = 1
 	var property rangoDeLaExplosion = 1
+	var vivo = true
 
 	method iniciar() {
 		position = game.at(1,1)
@@ -35,6 +36,7 @@ object jugador inherits Personaje {
 		bombasDisponibles = 1
 		rangoDeLaExplosion = 1
 		frame = 0
+		vivo = true
 
 		keyboard.up().onPressDo({self.mover(norte)})
 		keyboard.right().onPressDo({self.mover(este)})
@@ -64,10 +66,11 @@ object jugador inherits Personaje {
 	method morir() {
 		jugadorSoundEffect.play()
 		game.removeVisual(self)
+		vivo = false
 		game.schedule(2000,{pantallaDeGameOver.iniciar()})
 	}
 
-	method puedePonerBomba() = game.getObjectsIn(position).size() == 1 and bombasDisponibles > 0
+	method puedePonerBomba() = game.getObjectsIn(position).size() == 1 and bombasDisponibles > 0 and vivo
 	method powerUpBomba() {bombasDisponibles += 1}
 	method powerUpExplosion() {rangoDeLaExplosion += 1}
 	
@@ -281,6 +284,8 @@ class PowerUpExplosion inherits PowerUp{
 
 object portal {
 	method image() = "bman/portal.png"
-	method chocarJugador() {}
+	method chocarJugador() {
+		
+	}
 	method explotar() {}
 }

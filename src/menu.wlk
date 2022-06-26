@@ -1,10 +1,11 @@
 import wollok.game.*
 import consola.*
-import bomberman.*
+import mapa.*
+import efectosDeSonido.*
 
 
-object barraDeEstado {
-	method image() = "bman/barraEstadisticas.png"
+object barraSuperior {
+	method image() = "bman/barra-superior.png"
 }
 // MENU
 
@@ -15,7 +16,7 @@ class Menu {
 		game.clear()
 		keyboard.up().onPressDo{self.cambiarOpcionSeleccionadaA(opcionSeleccionada.opcionSuperior())}
 		keyboard.down().onPressDo{self.cambiarOpcionSeleccionadaA(opcionSeleccionada.opcionInferior())}
-		keyboard.enter().onPressDo{ opcionSeleccionada.seleccionar() game.sound("bman/sonido/seleccion2.mp3").play() }
+		keyboard.enter().onPressDo{ opcionSeleccionada.seleccionar() selectionSoundEffect.play() }
 		flechaMenu.position(opcionSeleccionada.posicion())
 		game.addVisualIn(self,game.origin())
 		game.addVisual(flechaMenu)
@@ -23,7 +24,7 @@ class Menu {
 	method cambiarOpcionSeleccionadaA(opcion) {
 		opcionSeleccionada = opcion
 		flechaMenu.position(opcionSeleccionada.posicion())
-		game.sound("bman/sonido/seleccion.mp3").play()
+		switchSoundEffect.play()
 	}
 }
 
@@ -38,7 +39,7 @@ object pantallaDeInicio inherits Menu {
 object pantallaDeControles inherits Menu {
 	override method iniciar() {
 		game.clear()
-		keyboard.enter().onPressDo{ consola.iniciar() game.sound("bman/sonido/seleccion2.mp3").play() }
+		keyboard.enter().onPressDo{ consola.iniciar() selectionSoundEffect.play() }
 		game.addVisualIn(self,game.origin())
 	}
 	method image() = "bman/menuControles.png"
@@ -55,7 +56,7 @@ object pantallaDeGameOver inherits Menu {
 object opcionComenzarJuego {
 	method posicion() = game.at(5,7)
 
-	method seleccionar() {new Nivel1()}
+	method seleccionar() {nivel1.iniciar()}
 	
 	method opcionSuperior() = opcionSalir
 
@@ -92,7 +93,7 @@ object opcionSalir {
 object opcionContinuar {
 	method posicion() = game.at(6,2)
 
-	method seleccionar() {new Nivel1()}
+	method seleccionar() {nivel1.iniciar()}
 
 	method opcionSuperior() = opcionMenuPrincipal
 
@@ -114,8 +115,4 @@ object opcionMenuPrincipal {
 object flechaMenu {
 	var property position
 	method image() = "bman/flecha.png"
-}
-
-object transicionNivelI {
-	method image() = "bman/nivel1.png"
 }

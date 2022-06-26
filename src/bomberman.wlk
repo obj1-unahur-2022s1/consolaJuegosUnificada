@@ -1,71 +1,8 @@
 import wollok.game.*
 import menu.*
-// NIVELES
+import efectosDeSonido.*
+import mapa.*
 
-class Nivel1 {
-	
-	method initialize() {
-		game.addVisualIn(transicionNivelI,game.origin())
-		game.schedule(3000,
-			{
-				game.clear()
-				self.configurar()
-			})
-	}
-	
-	method configurar() {
-		game.addVisualIn(fondoDeNivel,game.origin())
-		// BLOQUES
-		self.ponerLimites()
-		self.ponerBloquesAlternados()
-		self.ponerBloquesVulnerables()
-		// EL BLOQUE CON EL PORTAL
-		game.addVisual(new BloqueConPortal(position=game.at(7,7)))
-		// BICHITOS
-		new Enemigo(position=game.at(5,5),direccion=oeste).dibujar()
-		new Enemigo(position=game.at(1,7),direccion=oeste).dibujar()
-		// JUGADOR
-		game.addVisualIn(estado_jugador_bombas,game.at(5,11))
-		game.addVisualIn(estado_jugador_explosion,game.at(10.9,11))
-		jugador.iniciar()
-	}
-	method ponerLimites() {
-		const ancho = game.width() - 1
-		const largo = game.height() - 2
-		const posiciones = []
-		
-		(1..ancho-1).forEach { i => posiciones.add(new Position(x=i,y=0));posiciones.add(new Position(x=i,y=largo)) }
-		(0..largo).forEach { i => posiciones.add(new Position(x=0,y=i));posiciones.add(new Position(x=ancho,y=i)) }
-		
-		posiciones.forEach { pos => game.addVisual(new Bloque(position=pos))}
-	}
-	method ponerBloquesAlternados() {
-		const ancho = game.width() - 1
-		const largo = game.height() - 1
-		const listaFilas = []
-		const listaColumnas = []
-		
-		(2..largo-2).filter {numero => numero.even()}.forEach {numero => listaFilas.add(numero)}
-		(2..ancho-2).filter {numero => numero.even()}.forEach {numero => listaColumnas.add(numero)}
-		
-		listaColumnas.forEach{columna => self.dibujarColumnaDeBloques(listaFilas,columna)}
-	}
-	method ponerBloquesVulnerables() {		
-		self.dibujarFilaDeBloquesVulnerables([3,4,5,6,7],1)
-		self.dibujarFilaDeBloquesVulnerables([3,5,11],2)
-		self.dibujarFilaDeBloquesVulnerables([2,3,4,5,6],3)
-		self.dibujarFilaDeBloquesVulnerables([1,3,5,7,11],4)
-		self.dibujarFilaDeBloquesVulnerables([2,3,9],5)
-		self.dibujarFilaDeBloquesVulnerables([1,3,5,7],6)
-		self.dibujarFilaDeBloquesVulnerables([3],7)
-	}
-	method dibujarColumnaDeBloques(filas,columna) {
-		filas.forEach{nroFila => game.addVisual(new Bloque(position=game.at(columna,nroFila)))}
-	}
-	method dibujarFilaDeBloquesVulnerables(columnas,fila) {
-		columnas.forEach{nroColumna => game.addVisual(new BloqueVulnerable(position=game.at(nroColumna,fila)))}
-	}
-}
 
 class Personaje {
 	var position = null
@@ -103,7 +40,7 @@ object jugador inherits Personaje {
 		keyboard.right().onPressDo({self.mover(este)})
 		keyboard.left().onPressDo({self.mover(oeste)})
 		keyboard.down().onPressDo({self.mover(sur)})
-		keyboard.d().onPressDo({self.plantarBomba()})
+		keyboard.d().onPressDo({self.ponerBomba()})
 		
 		game.addVisual(self)
 		game.onCollideDo(self,{elemento => elemento.chocarJugador()})
@@ -113,8 +50,8 @@ object jugador inherits Personaje {
 		position = direccion.opuesto().siguiente(position)
 	}
 	
-	method plantarBomba() {
-		if (self.puedePlantarBomba()) {
+	method ponerBomba() {
+		if (self.puedePonerBomba()) {
 			new Bomba(position = position).colocar()
 			bombasDisponibles -= 1	
 		}
@@ -125,12 +62,12 @@ object jugador inherits Personaje {
 	}
 	
 	method morir() {
-		game.sound("bman/sonido/jugador_muere.mp3").play()
+		jugadorSoundEffect.play()
 		game.removeVisual(self)
 		game.schedule(2000,{pantallaDeGameOver.iniciar()})
 	}
 
-	method puedePlantarBomba() = game.getObjectsIn(position).size() == 1 and bombasDisponibles > 0
+	method puedePonerBomba() = game.getObjectsIn(position).size() == 1 and bombasDisponibles > 0
 	method powerUpBomba() {bombasDisponibles += 1}
 	method powerUpExplosion() {rangoDeLaExplosion += 1}
 	
@@ -152,7 +89,7 @@ class Enemigo inherits Personaje {
 	method explotar() {
 		game.removeVisual(self)
 		game.removeTickEvent(self.identity().toString().toString())
-		game.sound("bman/sonido/bichito_muere.mp3").play()
+		bichitoSoundEffect.play()
 	}
 	method chocarJugador() {
 		jugador.morir()
@@ -169,12 +106,11 @@ class Enemigo inherits Personaje {
 	method cambiarDeDireccion() {
 		const direccionesPosibles = [norte,este,sur,oeste]
 		direccionesPosibles.removeAllSuchThat( {direccion => !self.puedeAvanzarHacia(direccion) })
-		try {
+		
+		if(!direccionesPosibles.isEmpty())
 			direccion = direccionesPosibles.anyOne()
-		}
-		catch e {
+		else
 			direccion = direccion.opuesto()
-		}
 	}
 
 	method puedeAvanzarHacia(unaDireccion) {
@@ -217,17 +153,17 @@ class BloqueConPortal inherits BloqueVulnerable {
 	override method explotar() {
 		game.colliders(self).first().remover()
 		game.removeVisual(self)
-		game.addVisualIn(new Portal(),position)
+		game.addVisualIn(portal,position)
 	}
 }
 
 class Bomba {
 	const property position
 	var frame = 0
-	var acabaDeSerPlantada = true
+	var acabaDeSerColocada = true
 	
 	method colocar() {
-			game.sound("bman/sonido/bomba.mp3").play()
+			bombaSoundEffect.play()
 			game.addVisual(self)
 			jugador.refrescarFrame()
 			game.onTick(800,self.identity().toString(),{self.animar()})
@@ -238,12 +174,13 @@ class Bomba {
 			game.removeVisual(self)
 			game.removeTickEvent(self.identity().toString())
  			jugador.powerUpBomba()
- 			game.sound("bman/sonido/explosion.mp3").play()
+ 			explosionSoundEffect.play()
  			new Flama(position=position).dibujar()
 			new Explosion(direccion=norte,position=position).desencadenar()
 			new Explosion(direccion=este,position=position).desencadenar()
 			new Explosion(direccion=sur,position=position).desencadenar()
-			new Explosion(direccion=oeste,position=position).desencadenar()	
+			new Explosion(direccion=oeste,position=position).desencadenar()
+			jugador.refrescarFrame()
 		}
  	}
  		
@@ -252,8 +189,8 @@ class Bomba {
  		frame = (frame + 1) % 3
  	}
  	method chocarJugador() {
- 		if (acabaDeSerPlantada) {
- 			acabaDeSerPlantada = false
+ 		if (acabaDeSerColocada) {
+ 			acabaDeSerColocada = false
  		}
  		else {
  			jugador.retroceder()
@@ -283,8 +220,10 @@ class Explosion {
 	method remover() {
 		game.removeVisual(self)
 		game.removeTickEvent(self.identity().toString())
+		jugador.refrescarFrame()
 	}
 	method explotar() {}
+	method chocarJugador() {}
 	method position() = position
 }
  
@@ -293,7 +232,6 @@ class Flama {
 	var frame = 0
 	method dibujar() {
 		game.addVisual(self)
-		jugador.refrescarFrame()
 		game.onTick(100,self.identity().toString(),{self.animar()})
 		game.onCollideDo(self,{elemento => elemento.explotar()})
 		game.schedule(2000,{self.remover()})
@@ -338,46 +276,8 @@ class PowerUpExplosion inherits PowerUp{
 
 }
 
-class Portal {
+object portal {
 	method image() = "bman/portal.png"
-	method chocarJugador() {
-
-	}
+	method chocarJugador() {}
 	method explotar() {}
-}
-
-
-
-object estado_jugador_bombas {
-	method text() = jugador.bombasDisponibles().toString() 
-	method textColor() = "FFFFFFFF"
-}
-
-object estado_jugador_explosion {
-	method text() = "x" +jugador.rangoDeLaExplosion().toString()
-	method textColor() = "FFFFFFFF"
-}
-
-object fondoDeNivel {
-	method image() = "bman/pisoMosaico.png"
-}
-
-object norte {
-	method siguiente(posicion) = posicion.up(1)
-	method opuesto() = sur
-}
-
-object este {
-	method siguiente(posicion) = posicion.right(1)
-	method opuesto() = oeste
-}
-
-object sur {
-	method siguiente(posicion) = posicion.down(1)
-	method opuesto() = norte
-}
-
-object oeste {
-	method siguiente(posicion) = posicion.left(1)
-	method opuesto() = este
 }

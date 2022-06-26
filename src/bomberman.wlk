@@ -28,7 +28,7 @@ class Personaje {
 object jugador inherits Personaje {
 	var property bombasDisponibles = 1
 	var property rangoDeLaExplosion = 1
-	
+
 	method iniciar() {
 		position = game.at(1,1)
 		direccion = sur
@@ -72,9 +72,10 @@ object jugador inherits Personaje {
 	method powerUpExplosion() {rangoDeLaExplosion += 1}
 	
 	method refrescarFrame() {
-		if (game.hasVisual(self))
+		if(game.hasVisual(self)) {
 			game.removeVisual(self)
-			game.addVisual(self)
+			game.addVisual(self)	
+		}
 	}
 	
 	override method image() = "bman/bman_" + super()
@@ -257,7 +258,9 @@ class PowerUp {
 		game.removeVisual(self)
 		game.sound("bman/sonido/powerUp.mp3").play()
 	}
-	method explotar() {}
+	method explotar() {
+		game.removeVisual(self)	
+	}
 }
 class PowerUpBomba inherits PowerUp {
 	method image() = "bman/bombPowerUp.png"

@@ -28,15 +28,17 @@ class Personaje {
 object jugador inherits Personaje {
 	var property bombasDisponibles = 1
 	var property rangoDeLaExplosion = 1
-	var vivo = true
+	var property puntos = 0
+	var activo = true
 
 	method iniciar() {
 		position = game.at(1,1)
 		direccion = sur
 		bombasDisponibles = 1
 		rangoDeLaExplosion = 1
+		puntos = 0
 		frame = 0
-		vivo = true
+		activo = true
 
 		keyboard.up().onPressDo({self.mover(norte)})
 		keyboard.right().onPressDo({self.mover(este)})
@@ -66,13 +68,24 @@ object jugador inherits Personaje {
 	method morir() {
 		jugadorSoundEffect.play()
 		game.removeVisual(self)
-		vivo = false
+		activo = false
 		game.schedule(2000,{pantallaDeGameOver.iniciar()})
 	}
 
-	method puedePonerBomba() = game.getObjectsIn(position).size() == 1 and bombasDisponibles > 0 and vivo
+	method transportar() {
+		victoriaSoundEffect.play()
+		game.removeVisual(self)
+		activo = false
+		game.schedule(3000,{pantallaFinal.iniciar()})
+	}
+
+	method puedePonerBomba() = game.getObjectsIn(position).size() == 1 and bombasDisponibles > 0 and activo
 	method powerUpBomba() {bombasDisponibles += 1}
 	method powerUpExplosion() {rangoDeLaExplosion += 1}
+	method aniadirPunto() {
+		puntos += 1
+		scoreSoundEffect.play()
+	}
 	
 	method refrescarFrame() {
 		if(game.hasVisual(self)) {
@@ -93,7 +106,7 @@ class Enemigo inherits Personaje {
 	method explotar() {
 		game.removeVisual(self)
 		game.removeTickEvent(self.identity().toString().toString())
-		bichitoSoundEffect.play()
+		jugador.aniadirPunto()
 	}
 	method chocarJugador() {
 		jugador.morir()
@@ -285,7 +298,7 @@ class PowerUpExplosion inherits PowerUp{
 object portal {
 	method image() = "bman/portal.png"
 	method chocarJugador() {
-		
+		jugador.transportar()
 	}
 	method explotar() {}
 }

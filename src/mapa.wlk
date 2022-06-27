@@ -25,6 +25,7 @@ object nivel1 {
 		// JUGADOR
 		game.addVisualIn(jugador_bombas,game.at(5,11))
 		game.addVisualIn(jugador_explosion,game.at(10.9,11))
+		game.addVisualIn(jugador_puntos,game.at(1,11))
 		jugador.iniciar()
 	}
 	method ponerLimites() {
@@ -79,6 +80,11 @@ object jugador_bombas {
 object jugador_explosion {
 	method text() = "x" +jugador.rangoDeLaExplosion().toString()
 	method textColor() = "FFFFFFFF"
+}
+
+object jugador_puntos {
+	method text() = "puntos: "+jugador.puntos().toString()
+	method textColor() = "FFFFFFFF"	
 }
 
 object transicionNivelI {

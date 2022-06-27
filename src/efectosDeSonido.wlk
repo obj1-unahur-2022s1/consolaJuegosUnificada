@@ -2,13 +2,19 @@ import wollok.game.*
 
 object selectionSoundEffect {
 	method play() {
-		game.sound("bman/sonido/seleccion2.mp3").play()
+		game.sound("bman/sonido/seleccion.mp3").play()
 	}
 }
 
-object switchSoundEffect {
+object cursorSoundEffect {
 	method play() {
-		game.sound("bman/sonido/seleccion.mp3").play()
+		game.sound("bman/sonido/cursor.mp3").play()
+	}
+}
+
+object scoreSoundEffect {
+	method play() {
+		game.sound("bman/sonido/punto.mp3").play()
 	}
 }
 
@@ -30,8 +36,8 @@ object jugadorSoundEffect {
 	}
 }
 
-object bichitoSoundEffect {
+object victoriaSoundEffect {
 	method play() {
-		game.sound("bman/sonido/bichito_muere.mp3").play()
+		game.sound("bman/sonido/Stage Clear.mp3").play()
 	}
 }

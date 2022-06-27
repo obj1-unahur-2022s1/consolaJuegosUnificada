@@ -3,11 +3,6 @@ import consola.*
 import mapa.*
 import efectosDeSonido.*
 
-
-object barraSuperior {
-	method image() = "bman/barra-superior.png"
-}
-
 class Menu {
 	var opcionSeleccionada = null
 
@@ -23,7 +18,7 @@ class Menu {
 	method cambiarOpcionSeleccionadaA(opcion) {
 		opcionSeleccionada = opcion
 		flechaMenu.position(opcionSeleccionada.posicion())
-		switchSoundEffect.play()
+		cursorSoundEffect.play()
 	}
 }
 
@@ -35,20 +30,33 @@ object pantallaDeInicio inherits Menu {
 	}
 }
 
-object pantallaDeControles inherits Menu {
-	override method iniciar() {
-		game.clear()
-		keyboard.enter().onPressDo{ pantallaDeInicio.iniciar() }
-		game.addVisualIn(self,game.origin())
-	}
-	method image() = "bman/menuControles.png"
-}
-
 object pantallaDeGameOver inherits Menu {
 	method image() = "bman/menuGameOver.png"
 	override method iniciar() {
 		opcionSeleccionada = opcionContinuar
 		super()
+	}
+}
+
+object pantallaDeControles {
+	method iniciar() {
+		game.clear()
+		keyboard.enter().onPressDo{
+			game.schedule(100,{pantallaDeInicio.iniciar()})
+		 }
+		game.addVisualIn(self,game.origin())
+	}
+	method image() = "bman/menuControles.png"
+}
+
+object pantallaFinal {
+	method image() = "bman/pantallaFinal.png"
+	method iniciar() {
+		game.clear()
+		keyboard.enter().onPressDo{
+			game.schedule(100,{pantallaDeInicio.iniciar()})
+		 }
+		game.addVisualIn(self,game.origin())
 	}
 }
 

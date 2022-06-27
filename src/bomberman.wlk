@@ -32,7 +32,7 @@ object jugador inherits Personaje {
 	var activo = true
 
 	method iniciar() {
-		position = game.at(1,1)
+		position = game.at(1,9)
 		direccion = sur
 		bombasDisponibles = 1
 		rangoDeLaExplosion = 1
@@ -105,7 +105,7 @@ class Enemigo inherits Personaje {
 	}
 	method explotar() {
 		game.removeVisual(self)
-		game.removeTickEvent(self.identity().toString().toString())
+		game.removeTickEvent(self.identity().toString())
 		jugador.aniadirPunto()
 	}
 	method chocarJugador() {
@@ -163,14 +163,6 @@ class BloqueVulnerable inherits Bloque {
 		else if(suerte == 2) {
 			game.addVisualIn(new PowerUpExplosion(),position)
 		}
-	}
-}
-
-class BloqueConPortal inherits BloqueVulnerable {
-	override method explotar() {
-		game.colliders(self).first().remover()
-		game.removeVisual(self)
-		game.addVisualIn(portal,position)
 	}
 }
 

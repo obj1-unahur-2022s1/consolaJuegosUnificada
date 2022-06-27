@@ -12,16 +12,17 @@ object nivel1 {
 	method configurar() {
 		game.clear()
 		game.addVisualIn(fondoDeNivel,game.origin())
-		// BLOQUES
+//		// BLOQUES
 		self.ponerLimites()
-		self.ponerBloquesAlternados()
+		self.ponerBloques()
 		self.ponerBloquesVulnerables()
-		// EL BLOQUE CON EL PORTAL
-		game.addVisual(new BloqueConPortal(position=game.at(7,7)))
+//		EL PORTAL
+		game.addVisualIn(portal,game.at(15,2))
 		// BICHITOS
-		new Enemigo(position=game.at(5,5),direccion=oeste).dibujar()
-		new Enemigo(position=game.at(2,7),direccion=oeste).dibujar()
-		new Enemigo(position=game.at(9,3),direccion=oeste).dibujar()
+		new Enemigo(position=game.at(1,5),direccion=sur).dibujar()
+		new Enemigo(position=game.at(3,7),direccion=oeste).dibujar()
+		new Enemigo(position=game.at(10,9),direccion=oeste).dibujar()
+		new Enemigo(position=game.at(14,1),direccion=oeste).dibujar()
 		// JUGADOR
 		game.addVisualIn(jugador_bombas,game.at(5,11))
 		game.addVisualIn(jugador_explosion,game.at(10.9,11))
@@ -38,7 +39,7 @@ object nivel1 {
 		
 		posiciones.forEach { pos => game.addVisual(new Bloque(position=pos))}
 	}
-	method ponerBloquesAlternados() {
+	method ponerBloques() {
 		const ancho = game.width() - 1
 		const largo = game.height() - 1
 		const listaFilas = []
@@ -48,17 +49,22 @@ object nivel1 {
 		(2..ancho-2).filter {numero => numero.even()}.forEach {numero => listaColumnas.add(numero)}
 		
 		listaColumnas.forEach{columna => self.dibujarColumnaDeBloques(listaFilas,columna)}
+		self.dibujarColumnaDeBloques([3,9],5)
+		game.addVisual(new Bloque(position=game.at(9,3)))
+		game.addVisual(new Bloque(position=game.at(11,4)))
+		game.addVisual(new Bloque(position=game.at(15,3)))
+		game.addVisual(new Bloque(position=game.at(4,1)))
 	}
 	method ponerBloquesVulnerables() {		
-		self.dibujarFilaDeBloquesVulnerables([3,4,5,6,7,15],1)
-		self.dibujarFilaDeBloquesVulnerables([3,5,11,9,13],2)
-		self.dibujarFilaDeBloquesVulnerables([2,3,4,5,6,12,13],3)
-		self.dibujarFilaDeBloquesVulnerables([1,3,5,7,11,15],4)
-		self.dibujarFilaDeBloquesVulnerables([2,3,9,11,14,15],5)
-		self.dibujarFilaDeBloquesVulnerables([1,3,5,7,13,15],6)
-		self.dibujarFilaDeBloquesVulnerables([1,4,11,12],7)
-		self.dibujarFilaDeBloquesVulnerables([3,7,9,13],8)
-		self.dibujarFilaDeBloquesVulnerables([1,5,6],9)
+		self.dibujarFilaDeBloquesVulnerables([8,9,14],9)
+		self.dibujarFilaDeBloquesVulnerables([3,7,9,11],8)
+		self.dibujarFilaDeBloquesVulnerables([1,4,6,8,9,10,11,14,15],7)
+		self.dibujarFilaDeBloquesVulnerables([1,3,5,7,11,15],6)
+		self.dibujarFilaDeBloquesVulnerables([1,3,9],5)
+		self.dibujarFilaDeBloquesVulnerables([5,7,13,15],4)
+		self.dibujarFilaDeBloquesVulnerables([2,4,8,11,12,13,14],3)
+		self.dibujarFilaDeBloquesVulnerables([13],2)
+		self.dibujarFilaDeBloquesVulnerables([6],1)
 	}
 	method dibujarColumnaDeBloques(filas,columna) {
 		filas.forEach{nroFila => game.addVisual(new Bloque(position=game.at(columna,nroFila)))}

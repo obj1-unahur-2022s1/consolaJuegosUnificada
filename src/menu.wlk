@@ -7,7 +7,6 @@ import efectosDeSonido.*
 object barraSuperior {
 	method image() = "bman/barra-superior.png"
 }
-// MENU
 
 class Menu {
 	var opcionSeleccionada = null
@@ -16,7 +15,7 @@ class Menu {
 		game.clear()
 		keyboard.up().onPressDo{self.cambiarOpcionSeleccionadaA(opcionSeleccionada.opcionSuperior())}
 		keyboard.down().onPressDo{self.cambiarOpcionSeleccionadaA(opcionSeleccionada.opcionInferior())}
-		keyboard.enter().onPressDo{ opcionSeleccionada.seleccionar() selectionSoundEffect.play() }
+		keyboard.enter().onPressDo{ opcionSeleccionada.seleccionar() }
 		flechaMenu.position(opcionSeleccionada.posicion())
 		game.addVisualIn(self,game.origin())
 		game.addVisual(flechaMenu)
@@ -39,7 +38,7 @@ object pantallaDeInicio inherits Menu {
 object pantallaDeControles inherits Menu {
 	override method iniciar() {
 		game.clear()
-		keyboard.enter().onPressDo{ pantallaDeInicio.iniciar() selectionSoundEffect.play() }
+		keyboard.enter().onPressDo{ pantallaDeInicio.iniciar() }
 		game.addVisualIn(self,game.origin())
 	}
 	method image() = "bman/menuControles.png"
@@ -56,7 +55,10 @@ object pantallaDeGameOver inherits Menu {
 object opcionComenzarJuego {
 	method posicion() = game.at(5,7)
 
-	method seleccionar() {nivel1.iniciar()}
+	method seleccionar() {
+		selectionSoundEffect.play()
+		nivel1.iniciar()
+	}
 	
 	method opcionSuperior() = opcionSalir
 
@@ -67,7 +69,8 @@ object opcionControles {
 	method posicion() = game.at(4,5)
 	
 	method seleccionar() {
-		pantallaDeControles.iniciar()
+		selectionSoundEffect.play()
+		game.schedule(100,{pantallaDeControles.iniciar()})
 	}
 	
 	method opcionSuperior() = opcionComenzarJuego
@@ -78,7 +81,8 @@ object opcionControles {
 object opcionSalir {
 	method posicion() = game.at(5,3)
 
-	method seleccionar() {game.schedule(100,
+	method seleccionar() {
+		game.schedule(100,
 		{
 			game.clear()
 			consola.iniciar()
@@ -93,7 +97,10 @@ object opcionSalir {
 object opcionContinuar {
 	method posicion() = game.at(6,2)
 
-	method seleccionar() {nivel1.iniciar()}
+	method seleccionar() {
+		selectionSoundEffect.play()
+		nivel1.iniciar()
+	}
 
 	method opcionSuperior() = opcionMenuPrincipal
 
@@ -104,6 +111,7 @@ object opcionMenuPrincipal {
 	method posicion() = game.at(6,1)
 
 	method seleccionar() {
+		selectionSoundEffect.play()
 		pantallaDeInicio.iniciar()
 	}
 

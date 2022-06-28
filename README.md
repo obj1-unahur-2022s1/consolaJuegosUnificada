@@ -8,9 +8,11 @@ Esta es una edicion similar a la del clasico Bomberman, en él, tendras que atra
 
 ## Controles
 
- Moverse en el mapa: ![](assets/flechas-direccionales.png)
+ Moverse en el mapa:
+ ![](assets/flechas-direccionales.png)
  
- Plantar bomba: ![](assets/flechas-d.png)
+ Plantar bomba:
+ ![](assets/flechas-d.png)
 
 ## Objetos
 

@@ -1,9 +1,23 @@
 # Consola de Juegos
 
-## Elección del Juego
+## Bomberman Wollok Edition
 
-El juego que debe programar cada equipo es de libre elección. Puede ser cualquier juego que uds quieran implementar, algo totalmente nuevo o replicar un juego que ya existe, como por ejemplo el Tetrix. Apelamos a su creatividad pero para conseguir algo de inspiración pueden revisar en la página de wollok donde hay varios juegos y ejemplos.
+![](assets/bman/menuBomberman.png)
 
-## Integración
+Esta es una edicion similar a la del clasico Bomberman, en él, tendras que atravezar el nivel para llegar al portal y poder escapar. Pero para ello, deberas abrirte camino a travez de paredes, ¡Pero cuidado con las explociones!, si las potencias demaciado, podras ser alcanzado por una si no te resguardas.
 
-Pero no todo es tán fácil. El juego que realicen lo deberán integrar a esta consola de juegos. Van a tener que revisar el código, entender como integrarse y luego programar el juego. :-)
+## Controles
+
+ Moverse en el mapa: ![](assets/flechas-direccionales.png)
+ 
+ Plantar bomba: ![](assets/flechas-d.png)
+
+## Objetos
+
+ Potenciador de bomba:
+
+## Grupo de desarrollo
+
+ * Sarubbi, Mateo Alejandro
+ * Garegnani, Luciano
+ * Monteagudo, Matias

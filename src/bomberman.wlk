@@ -26,17 +26,12 @@ class Personaje {
 }
 
 object jugador inherits Personaje {
-	var property bombasDisponibles = 1
-	var property rangoDeLaExplosion = 1
-	var property puntos = 0
+	var bombasColocadas = 0
 	var activo = true
 
 	method iniciar() {
 		position = game.at(1,9)
 		direccion = sur
-		bombasDisponibles = 1
-		rangoDeLaExplosion = 1
-		puntos = 0
 		frame = 0
 		activo = true
 
@@ -57,7 +52,7 @@ object jugador inherits Personaje {
 	method ponerBomba() {
 		if (self.puedePonerBomba()) {
 			new Bomba(position = position).colocar()
-			bombasDisponibles -= 1	
+			bombasColocadas += 1
 		}
 	}
 	
@@ -78,15 +73,11 @@ object jugador inherits Personaje {
 		activo = false
 		game.schedule(3000,{pantallaFinal.iniciar()})
 	}
-
-	method puedePonerBomba() = game.getObjectsIn(position).size() == 1 and bombasDisponibles > 0 and activo
-	method powerUpBomba() {bombasDisponibles += 1}
-	method powerUpExplosion() {rangoDeLaExplosion += 1}
-	method aniadirPunto() {
-		puntos += 1
-		scoreSoundEffect.play()
-	}
 	
+	method decBombasColocadas() {bombasColocadas -= 1}
+
+	method puedePonerBomba() = game.getObjectsIn(position).size() == 1 and bombasColocadas < bombas.cantidad() and activo
+
 	method refrescarFrame() {
 		if(game.hasVisual(self)) {
 			game.removeVisual(self)
@@ -106,7 +97,8 @@ class Enemigo inherits Personaje {
 	method explotar() {
 		game.removeVisual(self)
 		game.removeTickEvent(self.identity().toString())
-		jugador.aniadirPunto()
+		scoreSoundEffect.play()
+		puntos.aniadirPunto()
 	}
 	method chocarJugador() {
 		jugador.morir()
@@ -182,7 +174,7 @@ class Bomba {
  		if(game.hasVisual(self)) {
 			game.removeVisual(self)
 			game.removeTickEvent(self.identity().toString())
- 			jugador.powerUpBomba()
+ 			jugador.decBombasColocadas()
  			explosionSoundEffect.play()
  			new Flama(position=position).dibujar()
 			new Explosion(direccion=norte,position=position).desencadenar()
@@ -217,7 +209,7 @@ class Explosion {
 		game.onTick(100,self.identity().toString(),{self.avanzar()})
 	}
 	method avanzar() {
-		if (posicionesAlcanzadas == jugador.rangoDeLaExplosion()) {
+		if (posicionesAlcanzadas == explosiones.alcance()) {
 			self.remover()
 		}
 		else {
@@ -274,7 +266,7 @@ class PowerUpBomba inherits PowerUp {
 	method image() = "bman/bombPowerUp.png"
 	override method chocarJugador() {
 		super()
-		jugador.powerUpBomba()
+		bombas.powerUp()
 	}
 }
 
@@ -282,7 +274,7 @@ class PowerUpExplosion inherits PowerUp{
 	method image() = "bman/flamePowerUp.png"
 	override method chocarJugador() {
 		super()
-		jugador.powerUpExplosion()
+		explosiones.powerUp()
 	}
 
 }

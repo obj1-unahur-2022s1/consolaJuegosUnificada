@@ -4,7 +4,7 @@
 
 ![](assets/bman/menuBomberman.png)
 
-Esta es una edicion similar a la del clasico Bomberman, en él, tendras que atravezar el nivel para llegar al portal y poder escapar. Pero para ello, deberas abrirte camino a travez de paredes, ¡Pero cuidado con las explociones!, si las potencias demaciado, podras ser alcanzado por una, consigue resguardarte a tiempo y evita a los enemigos.
+Esta es una edición similar a la del clasico Bomberman, en él, tendrás que atravesar el nivel para llegar al portal y poder escapar. Pero para ello, deberás abrirte camino a través de paredes, ¡Pero cuidado con las explosiones!, si las potencias demasiado, podrás ser alcanzado por una, consigue resguardarte a tiempo y evita a los enemigos.
 
 ## Controles
 

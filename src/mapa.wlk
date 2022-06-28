@@ -6,6 +6,9 @@ object nivel1 {
 	method iniciar() {
 		game.clear()
 		game.addVisualIn(transicionNivelI,game.origin())
+		puntos.puntos(0)
+		bombas.cantidad(1)
+		explosiones.alcance(1)
 		game.schedule(3000,{self.configurar()})
 	}
 	
@@ -14,19 +17,17 @@ object nivel1 {
 		game.addVisualIn(fondoDeNivel,game.origin())
 //		// BLOQUES
 		self.ponerLimites()
-		self.ponerBloques()
+		self.ponerBloquesAlternados()
 		self.ponerBloquesVulnerables()
 //		EL PORTAL
-		game.addVisualIn(portal,game.at(15,2))
+		game.addVisualIn(portal,game.at(15,5))
 		// BICHITOS
-		new Enemigo(position=game.at(1,5),direccion=sur).dibujar()
-		new Enemigo(position=game.at(3,7),direccion=oeste).dibujar()
-		new Enemigo(position=game.at(10,9),direccion=oeste).dibujar()
-		new Enemigo(position=game.at(14,1),direccion=oeste).dibujar()
+		new Enemigo(position=game.at(6,5),direccion=oeste).dibujar()
+		new Enemigo(position=game.at(13,7),direccion=sur).dibujar()
 		// JUGADOR
-		game.addVisualIn(jugador_bombas,game.at(5,11))
-		game.addVisualIn(jugador_explosion,game.at(10.9,11))
-		game.addVisualIn(jugador_puntos,game.at(1,11))
+		game.addVisualIn(bombas,game.at(5,11))
+		game.addVisualIn(explosiones,game.at(10.9,11))
+		game.addVisualIn(puntos,game.at(1,11))
 		jugador.iniciar()
 	}
 	method ponerLimites() {
@@ -39,7 +40,7 @@ object nivel1 {
 		
 		posiciones.forEach { pos => game.addVisual(new Bloque(position=pos))}
 	}
-	method ponerBloques() {
+	method ponerBloquesAlternados() {
 		const ancho = game.width() - 1
 		const largo = game.height() - 1
 		const listaFilas = []
@@ -49,22 +50,17 @@ object nivel1 {
 		(2..ancho-2).filter {numero => numero.even()}.forEach {numero => listaColumnas.add(numero)}
 		
 		listaColumnas.forEach{columna => self.dibujarColumnaDeBloques(listaFilas,columna)}
-		self.dibujarColumnaDeBloques([3,9],5)
-		game.addVisual(new Bloque(position=game.at(9,3)))
-		game.addVisual(new Bloque(position=game.at(11,4)))
-		game.addVisual(new Bloque(position=game.at(15,3)))
-		game.addVisual(new Bloque(position=game.at(4,1)))
 	}
 	method ponerBloquesVulnerables() {		
-		self.dibujarFilaDeBloquesVulnerables([8,9,14],9)
-		self.dibujarFilaDeBloquesVulnerables([3,7,9,11],8)
-		self.dibujarFilaDeBloquesVulnerables([1,4,6,8,9,10,11,14,15],7)
-		self.dibujarFilaDeBloquesVulnerables([1,3,5,7,11,15],6)
-		self.dibujarFilaDeBloquesVulnerables([1,3,9],5)
-		self.dibujarFilaDeBloquesVulnerables([5,7,13,15],4)
-		self.dibujarFilaDeBloquesVulnerables([2,4,8,11,12,13,14],3)
-		self.dibujarFilaDeBloquesVulnerables([13],2)
-		self.dibujarFilaDeBloquesVulnerables([6],1)
+		self.dibujarFilaDeBloquesVulnerables([5,7,8,10,11,12,13,14,15],9)
+		self.dibujarFilaDeBloquesVulnerables([7,9,11,13,15],8)
+		self.dibujarFilaDeBloquesVulnerables([1,3,4,5,7,10,11,12,14,15],7)
+		self.dibujarFilaDeBloquesVulnerables([3,5,15],6)
+		self.dibujarFilaDeBloquesVulnerables([3,7,8,9,14],5)
+		self.dibujarFilaDeBloquesVulnerables([5,7,13],4)
+		self.dibujarFilaDeBloquesVulnerables([1,2,6,7,8,9,10,11,12,13,14,15],3)
+		self.dibujarFilaDeBloquesVulnerables([1,3,5,11,13],2)
+		self.dibujarFilaDeBloquesVulnerables([1,2,3,4,5,6,7,8,10,11,14,15],1)
 	}
 	method dibujarColumnaDeBloques(filas,columna) {
 		filas.forEach{nroFila => game.addVisual(new Bloque(position=game.at(columna,nroFila)))}
@@ -78,18 +74,30 @@ object fondoDeNivel {
 	method image() = "bman/pisoMosaico.png"
 }
 
-object jugador_bombas {
-	method text() = jugador.bombasDisponibles().toString() 
+object bombas {
+	var property cantidad = 1
+	method powerUp(){
+		cantidad += 1
+	}
+	method text() = cantidad.toString()
 	method textColor() = "FFFFFFFF"
 }
 
-object jugador_explosion {
-	method text() = "x" +jugador.rangoDeLaExplosion().toString()
+object explosiones {
+	var property alcance = 1
+	method powerUp(){
+		alcance += 1
+	}
+	method text() = "x" + alcance.toString()
 	method textColor() = "FFFFFFFF"
 }
 
-object jugador_puntos {
-	method text() = "puntos: "+jugador.puntos().toString()
+object puntos {
+	var property puntos = 0
+	method aniadirPunto() {
+		puntos += 1
+	}
+	method text() = "puntos: " + puntos.toString()
 	method textColor() = "FFFFFFFF"	
 }
 

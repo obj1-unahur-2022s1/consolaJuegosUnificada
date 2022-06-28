@@ -74,7 +74,7 @@ object opcionComenzarJuego {
 }
 
 object opcionControles {
-	method posicion() = game.at(4,5)
+	method posicion() = game.at(3,5)
 	
 	method seleccionar() {
 		selectionSoundEffect.play()

@@ -3,29 +3,41 @@ import menu.*
 import efectosDeSonido.*
 import mapa.*
 
+class ObjetoAnimado {
+	var frame = 0
+	const cantFrames = 4
+	const img
+	
+	method pasarFrame() {
+		frame = (frame + 1) % cantFrames
+	}
+	method remover() {
+		if(game.hasVisual(self)) {
+			game.removeVisual(self)
+			game.removeTickEvent(self.identity().toString())
+		}
+	}
+	method image() = img + frame.toString() + ".png"
+}
 
-class Personaje {
+class Personaje inherits ObjetoAnimado {
 	var position = null
 	var direccion = null
-	var frame = 0
 	
 	method mover(_direccion) {
 		direccion = _direccion
 		position = direccion.siguiente(position)
-		self.animar()
+		self.darPaso()
 	}
-	method animar(){
+	method darPaso(){
 		self.pasarFrame()
 		game.schedule(250,{self.pasarFrame()})
 	}
-	method pasarFrame() {
-		frame = (frame + 1) % 4
-	}
 	method position() = position
-	method image() = direccion.toString() + frame.toString() + ".png"
+	override method image() = img + direccion.toString() + frame.toString() + ".png"
 }
 
-object jugador inherits Personaje {
+object jugador inherits Personaje(img="bman/bman_") {
 	var bombasColocadas = 0
 	var activo = true
 
@@ -84,11 +96,9 @@ object jugador inherits Personaje {
 			game.addVisual(self)	
 		}
 	}
-	
-	override method image() = "bman/bman_" + super()
 }
 
-class Enemigo inherits Personaje {
+class Enemigo inherits Personaje(img="bman/bichito_") {
 	
 	method dibujar() {
 		game.addVisual(self)
@@ -126,8 +136,6 @@ class Enemigo inherits Personaje {
 		const elementosEnDireccion = game.getObjectsIn(unaDireccion.siguiente(position))
 		return elementosEnDireccion.isEmpty() or (elementosEnDireccion.size() == 1 and elementosEnDireccion.contains(jugador))
 	}
-
-	override method image() = "bman/bichito_" + super()
 	
 }
 
@@ -150,45 +158,36 @@ class BloqueVulnerable inherits Bloque {
 	method soltarPowerUp() {
 		const suerte = (1..10).anyOne()
 		if(suerte == 1) {
-			game.addVisualIn(new PowerUpBomba(),position)
+			game.addVisualIn(new PowerUp(objeto=bombas,image="bman/bombPowerUp.png"),position)
 		}
 		else if(suerte == 2) {
-			game.addVisualIn(new PowerUpExplosion(),position)
+			game.addVisualIn(new PowerUp(objeto=explosiones,image="bman/flamePowerUp.png"),position)
 		}
 	}
 }
 
-class Bomba {
+class Bomba inherits ObjetoAnimado(cantFrames = 3,img="bman/bomba") {
 	const property position
-	var frame = 0
 	var acabaDeSerColocada = true
 	
 	method colocar() {
 			bombaSoundEffect.play()
 			game.addVisual(self)
 			jugador.refrescarFrame()
-			game.onTick(800,self.identity().toString(),{self.animar()})
+			game.onTick(800,self.identity().toString(),{self.pasarFrame()})
  			game.schedule(3000,{self.explotar()})
 	}
  	method explotar() {
  		if(game.hasVisual(self)) {
-			game.removeVisual(self)
-			game.removeTickEvent(self.identity().toString())
+			self.remover()
  			jugador.decBombasColocadas()
  			explosionSoundEffect.play()
  			new Flama(position=position).dibujar()
-			new Explosion(direccion=norte,position=position).desencadenar()
-			new Explosion(direccion=este,position=position).desencadenar()
-			new Explosion(direccion=sur,position=position).desencadenar()
-			new Explosion(direccion=oeste,position=position).desencadenar()
+ 			[norte,este,sur,oeste].forEach { dir => new Explosion(direccion=dir,position=position).desencadenar() }
 			jugador.refrescarFrame()
 		}
  	}
- 		
- 	method image() = "bman/bomba" + frame.toString() + ".png"
- 	method animar() {
- 		frame = (frame + 1) % 3
- 	}
+ 	
  	method chocarJugador() {
  		if (acabaDeSerColocada) {
  			acabaDeSerColocada = false
@@ -228,56 +227,34 @@ class Explosion {
 	method position() = position
 }
  
-class Flama {
+class Flama inherits ObjetoAnimado(cantFrames = 5,img="bman/flama") {
 	const property position
-	var frame = 0
+	
 	method dibujar() {
 		game.addVisual(self)
-		game.onTick(100,self.identity().toString(),{self.animar()})
+		game.onTick(100,self.identity().toString(),{self.pasarFrame()})
 		game.onCollideDo(self,{elemento => elemento.explotar()})
 		game.schedule(2000,{self.remover()})
-	}
- 	
-	method remover() {
-		if(game.hasVisual(self)) {
-			game.removeVisual(self)
-			game.removeTickEvent(self.identity().toString())
-		}
 	}
 	
 	method explotar() {}
 	method chocarJugador() {}
-
-	method animar() { frame = (frame + 1) % 5 }
-	method image() = "bman/flama" + frame.toString() + ".png"
-
 }
 
 class PowerUp {
+	const objeto
+	const property image
+	
 	method chocarJugador() {
 		game.removeVisual(self)
-		game.sound("bman/sonido/powerUp.mp3").play()
+		powerUpSoundEffect.play()
+		objeto.powerUp()
 	}
 	method explotar() {
 		game.removeVisual(self)	
 	}
 }
-class PowerUpBomba inherits PowerUp {
-	method image() = "bman/bombPowerUp.png"
-	override method chocarJugador() {
-		super()
-		bombas.powerUp()
-	}
-}
 
-class PowerUpExplosion inherits PowerUp{
-	method image() = "bman/flamePowerUp.png"
-	override method chocarJugador() {
-		super()
-		explosiones.powerUp()
-	}
-
-}
 
 object portal {
 	method image() = "bman/portal.png"

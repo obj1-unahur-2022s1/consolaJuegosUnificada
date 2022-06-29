@@ -41,3 +41,9 @@ object victoriaSoundEffect {
 		game.sound("bman/sonido/Stage Clear.mp3").play()
 	}
 }
+
+object powerUpSoundEffect {
+	method play() {
+		game.sound("bman/sonido/powerUp.mp3").play()
+	}
+}

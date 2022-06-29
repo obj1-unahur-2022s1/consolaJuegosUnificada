@@ -11,12 +11,12 @@ class ObjetoAnimado {
 	method pasarFrame() {
 		frame = (frame + 1) % cantFrames
 	}
-	method remover() {
-		if(game.hasVisual(self)) {
-			game.removeVisual(self)
-			game.removeTickEvent(self.identity().toString())
-		}
-	}
+//	method remover() {
+//		if(game.hasVisual(self)) {
+//			game.removeVisual(self)
+//			game.removeTickEvent(self.identity().toString())
+//		}
+//	}
 	method image() = img + frame.toString() + ".png"
 }
 
@@ -179,7 +179,8 @@ class Bomba inherits ObjetoAnimado(cantFrames = 3,img="bman/bomba") {
 	}
  	method explotar() {
  		if(game.hasVisual(self)) {
-			self.remover()
+			game.removeVisual(self)
+			game.removeTickEvent(self.identity().toString())
  			jugador.decBombasColocadas()
  			explosionSoundEffect.play()
  			new Flama(position=position).dibujar()
@@ -205,7 +206,7 @@ class Explosion {
 
 	method desencadenar() {
 		game.addVisual(self)
-		game.onTick(100,self.identity().toString(),{self.avanzar()})
+		game.onTick(50,self.identity().toString(),{self.avanzar()})
 	}
 	method avanzar() {
 		if (posicionesAlcanzadas == explosiones.alcance()) {
@@ -236,7 +237,12 @@ class Flama inherits ObjetoAnimado(cantFrames = 5,img="bman/flama") {
 		game.onCollideDo(self,{elemento => elemento.explotar()})
 		game.schedule(2000,{self.remover()})
 	}
-	
+	method remover() {
+		if(game.hasVisual(self)) {
+			game.removeVisual(self)
+			game.removeTickEvent(self.identity().toString())
+		}
+	}
 	method explotar() {}
 	method chocarJugador() {}
 }

@@ -2,18 +2,31 @@ import wollok.game.*
 import consola.*
 import mapa.*
 import efectosDeSonido.*
+import bomberman.*
 
 class Menu {
-	var opcionSeleccionada = null
+	var opcionSeleccionada
+	const property image
+	const opciones = true
 
 	method iniciar() {
 		game.clear()
-		keyboard.up().onPressDo{self.cambiarOpcionSeleccionadaA(opcionSeleccionada.opcionSuperior())}
-		keyboard.down().onPressDo{self.cambiarOpcionSeleccionadaA(opcionSeleccionada.opcionInferior())}
-		keyboard.enter().onPressDo{ opcionSeleccionada.seleccionar() }
-		flechaMenu.position(opcionSeleccionada.posicion())
 		game.addVisualIn(self,game.origin())
-		game.addVisual(flechaMenu)
+		if(opciones) {
+			keyboard.up().onPressDo{self.cambiarOpcionSeleccionadaA(opcionSeleccionada.opcionSuperior())}
+			keyboard.down().onPressDo{self.cambiarOpcionSeleccionadaA(opcionSeleccionada.opcionInferior())}
+			flechaMenu.position(opcionSeleccionada.posicion())
+			game.addVisual(flechaMenu)
+		}
+			
+		keyboard.enter().onPressDo{ 
+									game.schedule(100,
+										{
+											opcionSeleccionada.seleccionar() 
+											selectionSoundEffect.play() 
+										}
+									)
+								  }
 	}
 	method cambiarOpcionSeleccionadaA(opcion) {
 		opcionSeleccionada = opcion
@@ -22,49 +35,36 @@ class Menu {
 	}
 }
 
-object pantallaDeInicio inherits Menu {
-	method image() = "bman/menuBomberman.png"
-	override method iniciar() {
-		opcionSeleccionada = opcionComenzarJuego
-		super()
-	}
-}
-
-object pantallaDeGameOver inherits Menu {
-	method image() = "bman/menuGameOver.png"
-	override method iniciar() {
-		opcionSeleccionada = opcionContinuar
-		super()
-	}
-}
-
-object pantallaDeControles {
+class Evento {
+	var soundEffect
+	var tiempo
+	var pantalla
 	method iniciar() {
-		game.clear()
-		keyboard.enter().onPressDo{
-			game.schedule(100,{pantallaDeInicio.iniciar()})
-		 }
-		game.addVisualIn(self,game.origin())
+		game.schedule(100,{
+			soundEffect.play()
+			game.removeVisual(jugador)
+			jugador.activo(false)
+			game.schedule(tiempo,{pantalla.iniciar()})
+		})
 	}
-	method image() = "bman/menuControles.png"
 }
 
-object pantallaFinal {
-	method image() = "bman/pantallaFinal.png"
-	method iniciar() {
-		game.clear()
-		keyboard.enter().onPressDo{
-			game.schedule(100,{pantallaDeInicio.iniciar()})
-		 }
-		game.addVisualIn(self,game.origin())
-	}
+object menus {
+	method menuInicio() = new Menu(image='bman/menuBomberman.png',opcionSeleccionada=opcionComenzarJuego)
+	method menuControles() = new Menu(image='bman/menuControles.png',opcionSeleccionada = opcionMenuPrincipal,opciones=false)
+	method menuGameOver() = new Menu(image='bman/menuGameOver.png',opcionSeleccionada=opcionContinuar)
+	method menuNivelCompletado() = new Menu(image='bman/pantallaFinal.png',opcionSeleccionada=opcionMenuPrincipal,opciones=false)
+}
+
+object eventos {
+	method gameOver() = new Evento(soundEffect=jugadorSoundEffect,tiempo=2000,pantalla=menus.menuGameOver())
+	method nivelCompletado() = new Evento(soundEffect=victoriaSoundEffect,tiempo=3000,pantalla=menus.menuNivelCompletado())
 }
 
 object opcionComenzarJuego {
 	method posicion() = game.at(5,7)
 
 	method seleccionar() {
-		selectionSoundEffect.play()
 		nivel1.iniciar()
 	}
 	
@@ -77,8 +77,7 @@ object opcionControles {
 	method posicion() = game.at(3,5)
 	
 	method seleccionar() {
-		selectionSoundEffect.play()
-		game.schedule(100,{pantallaDeControles.iniciar()})
+		menus.menuControles().iniciar()
 	}
 	
 	method opcionSuperior() = opcionComenzarJuego
@@ -90,12 +89,9 @@ object opcionSalir {
 	method posicion() = game.at(5,3)
 
 	method seleccionar() {
-		game.schedule(100,
-		{
-			game.clear()
-			consola.iniciar()
-		}
-	)}
+		game.clear()
+		consola.iniciar()
+	}
 
 	method opcionSuperior() = opcionControles
 
@@ -106,7 +102,6 @@ object opcionContinuar {
 	method posicion() = game.at(6,2)
 
 	method seleccionar() {
-		selectionSoundEffect.play()
 		nivel1.iniciar()
 	}
 
@@ -119,8 +114,7 @@ object opcionMenuPrincipal {
 	method posicion() = game.at(6,1)
 
 	method seleccionar() {
-		selectionSoundEffect.play()
-		pantallaDeInicio.iniciar()
+		menus.menuInicio().iniciar()
 	}
 
 	method opcionSuperior() = opcionContinuar

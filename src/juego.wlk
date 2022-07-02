@@ -23,6 +23,6 @@ object bomberman {
 	var property position
 	method image() = "bman_head.png"
 	method iniciar() {
-		pantallaDeInicio.iniciar()
+		menus.menuInicio().iniciar()
 	}
 }

@@ -3,7 +3,7 @@ import menu.*
 import efectosDeSonido.*
 import mapa.*
 
-class ObjetoAnimado {
+class Sprite {
 	var frame = 0
 	const cantFrames = 4
 	const img
@@ -11,16 +11,16 @@ class ObjetoAnimado {
 	method pasarFrame() {
 		frame = (frame + 1) % cantFrames
 	}
-//	method remover() {
-//		if(game.hasVisual(self)) {
-//			game.removeVisual(self)
-//			game.removeTickEvent(self.identity().toString())
-//		}
-//	}
+	method refrescarSprite() {
+		if(game.hasVisual(self)) {
+			game.removeVisual(self)
+			game.addVisual(self)	
+		}
+	}
 	method image() = img + frame.toString() + ".png"
 }
 
-class Personaje inherits ObjetoAnimado {
+class Personaje inherits Sprite {
 	var position = null
 	var direccion = null
 	
@@ -39,7 +39,7 @@ class Personaje inherits ObjetoAnimado {
 
 object jugador inherits Personaje(img="bman/bman_") {
 	var bombasColocadas = 0
-	var activo = true
+	var property activo = true
 
 	method iniciar() {
 		position = game.at(1,9)
@@ -68,34 +68,11 @@ object jugador inherits Personaje(img="bman/bman_") {
 		}
 	}
 	
-	method explotar() {
-		self.morir()
-	}
-	
-	method morir() {
-		jugadorSoundEffect.play()
-		game.removeVisual(self)
-		activo = false
-		game.schedule(2000,{pantallaDeGameOver.iniciar()})
-	}
-
-	method transportar() {
-		victoriaSoundEffect.play()
-		game.removeVisual(self)
-		activo = false
-		game.schedule(3000,{pantallaFinal.iniciar()})
-	}
+	method explotar() {}
 	
 	method decBombasColocadas() {bombasColocadas -= 1}
 
 	method puedePonerBomba() = game.getObjectsIn(position).size() == 1 and bombasColocadas < bombas.cantidad() and activo
-
-	method refrescarFrame() {
-		if(game.hasVisual(self)) {
-			game.removeVisual(self)
-			game.addVisual(self)	
-		}
-	}
 }
 
 class Enemigo inherits Personaje(img="bman/bichito_") {
@@ -111,7 +88,7 @@ class Enemigo inherits Personaje(img="bman/bichito_") {
 		puntos.aniadirPunto()
 	}
 	method chocarJugador() {
-		jugador.morir()
+		eventos.gameOver().iniciar()
 	}
 	method moverse() {
 		if (self.puedeAvanzarHacia(direccion)) {
@@ -166,14 +143,14 @@ class BloqueVulnerable inherits Bloque {
 	}
 }
 
-class Bomba inherits ObjetoAnimado(cantFrames = 3,img="bman/bomba") {
+class Bomba inherits Sprite(cantFrames = 3,img="bman/bomba") {
 	const property position
 	var acabaDeSerColocada = true
 	
 	method colocar() {
 			bombaSoundEffect.play()
 			game.addVisual(self)
-			jugador.refrescarFrame()
+			jugador.refrescarSprite()
 			game.onTick(800,self.identity().toString(),{self.pasarFrame()})
  			game.schedule(3000,{self.explotar()})
 	}
@@ -185,7 +162,7 @@ class Bomba inherits ObjetoAnimado(cantFrames = 3,img="bman/bomba") {
  			explosionSoundEffect.play()
  			new Flama(position=position).dibujar()
  			[norte,este,sur,oeste].forEach { dir => new Explosion(direccion=dir,position=position).desencadenar() }
-			jugador.refrescarFrame()
+			jugador.refrescarSprite()
 		}
  	}
  	
@@ -221,14 +198,14 @@ class Explosion {
 	method remover() {
 		game.removeVisual(self)
 		game.removeTickEvent(self.identity().toString())
-		jugador.refrescarFrame()
+		jugador.refrescarSprite()
 	}
 	method explotar() {}
 	method chocarJugador() {}
 	method position() = position
 }
  
-class Flama inherits ObjetoAnimado(cantFrames = 5,img="bman/flama") {
+class Flama inherits Sprite(cantFrames = 5,img="bman/flama") {
 	const property position
 	
 	method dibujar() {
@@ -244,7 +221,7 @@ class Flama inherits ObjetoAnimado(cantFrames = 5,img="bman/flama") {
 		}
 	}
 	method explotar() {}
-	method chocarJugador() {}
+	method chocarJugador() {eventos.gameOver().iniciar()}
 }
 
 class PowerUp {
@@ -265,7 +242,7 @@ class PowerUp {
 object portal {
 	method image() = "bman/portal.png"
 	method chocarJugador() {
-		jugador.transportar()
+		eventos.nivelCompletado().iniciar()
 	}
 	method explotar() {}
 }

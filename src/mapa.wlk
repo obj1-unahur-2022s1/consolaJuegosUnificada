@@ -5,7 +5,7 @@ object nivel1 {
 	
 	method iniciar() {
 		game.clear()
-		game.addVisualIn(transicionNivelI,game.origin())
+		game.addVisualIn(self,game.origin())
 		puntos.puntos(0)
 		bombas.cantidad(1)
 		explosiones.alcance(1)
@@ -68,6 +68,7 @@ object nivel1 {
 	method dibujarFilaDeBloquesVulnerables(columnas,fila) {
 		columnas.forEach{nroColumna => game.addVisual(new BloqueVulnerable(position=game.at(nroColumna,fila)))}
 	}
+	method image() = "bman/nivel1.png"
 }
 
 object fondoDeNivel {
@@ -100,11 +101,6 @@ object puntos {
 	method text() = "puntos: " + puntos.toString()
 	method textColor() = "FFFFFFFF"	
 }
-
-object transicionNivelI {
-	method image() = "bman/nivel1.png"
-}
-
 
 object norte {
 	method siguiente(posicion) = posicion.up(1)

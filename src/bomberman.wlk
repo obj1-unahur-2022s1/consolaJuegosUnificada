@@ -3,40 +3,6 @@ import menu.*
 import efectosDeSonido.*
 import mapa.*
 
-class Sprite {
-	var frame = 0
-	const cantFrames = 4
-	const img
-	
-	method pasarFrame() {
-		frame = (frame + 1) % cantFrames
-	}
-	method refrescarSprite() {
-		if(game.hasVisual(self)) {
-			game.removeVisual(self)
-			game.addVisual(self)	
-		}
-	}
-	method image() = img + frame.toString() + ".png"
-}
-
-class Personaje inherits Sprite {
-	var position = null
-	var direccion = null
-	
-	method mover(_direccion) {
-		direccion = _direccion
-		position = direccion.siguiente(position)
-		self.darPaso()
-	}
-	method darPaso(){
-		self.pasarFrame()
-		game.schedule(250,{self.pasarFrame()})
-	}
-	method position() = position
-	override method image() = img + direccion.toString() + frame.toString() + ".png"
-}
-
 object jugador inherits Personaje(img="bman/bman_") {
 	var bombasColocadas = 0
 	var property activo = true
@@ -78,12 +44,10 @@ object jugador inherits Personaje(img="bman/bman_") {
 class Enemigo inherits Personaje(img="bman/bichito_") {
 	
 	method dibujar() {
-		game.addVisual(self)
-		game.onTick(500,self.identity().toString(),{self.moverse()})
+		juego.dibujarElementoConEvento(self,500,{self.moverse()})
 	}
 	method explotar() {
-		game.removeVisual(self)
-		game.removeTickEvent(self.identity().toString())
+		juego.removerElementoConEvento(self)
 		scoreSoundEffect.play()
 		puntos.aniadirPunto()
 	}
@@ -149,20 +113,17 @@ class Bomba inherits Sprite(cantFrames = 3,img="bman/bomba") {
 	
 	method colocar() {
 			bombaSoundEffect.play()
-			game.addVisual(self)
+			juego.dibujarElementoConEvento(self,800,{self.pasarFrame()})
 			jugador.refrescarSprite()
-			game.onTick(800,self.identity().toString(),{self.pasarFrame()})
  			game.schedule(3000,{self.explotar()})
 	}
  	method explotar() {
  		if(game.hasVisual(self)) {
-			game.removeVisual(self)
-			game.removeTickEvent(self.identity().toString())
+			juego.removerElementoConEvento(self)
  			jugador.decBombasColocadas()
  			explosionSoundEffect.play()
  			new Flama(position=position).dibujar()
  			[norte,este,sur,oeste].forEach { dir => new Explosion(direccion=dir,position=position).desencadenar() }
-			jugador.refrescarSprite()
 		}
  	}
  	
@@ -182,8 +143,7 @@ class Explosion {
 	var posicionesAlcanzadas = 0
 
 	method desencadenar() {
-		game.addVisual(self)
-		game.onTick(50,self.identity().toString(),{self.avanzar()})
+		juego.dibujarElementoConEvento(self,50,{self.avanzar()})
 	}
 	method avanzar() {
 		if (posicionesAlcanzadas == explosiones.alcance()) {
@@ -196,8 +156,7 @@ class Explosion {
 		}
 	}
 	method remover() {
-		game.removeVisual(self)
-		game.removeTickEvent(self.identity().toString())
+		juego.removerElementoConEvento(self)
 		jugador.refrescarSprite()
 	}
 	method explotar() {}
@@ -216,8 +175,7 @@ class Flama inherits Sprite(cantFrames = 5,img="bman/flama") {
 	}
 	method remover() {
 		if(game.hasVisual(self)) {
-			game.removeVisual(self)
-			game.removeTickEvent(self.identity().toString())
+			juego.removerElementoConEvento(self)
 		}
 	}
 	method explotar() {}
@@ -245,4 +203,49 @@ object portal {
 		eventos.nivelCompletado().iniciar()
 	}
 	method explotar() {}
+}
+
+object juego {
+	method dibujarElementoConEvento(elemento,tiempo,closure) {
+		game.addVisual(elemento)
+		game.onTick(tiempo,elemento.identity().toString(),closure)
+	}
+	method removerElementoConEvento(elemento) {
+		game.removeVisual(elemento)
+		game.removeTickEvent(elemento.identity().toString())
+	}
+}
+
+class Sprite {
+	var frame = 0
+	const cantFrames = 4
+	const img
+	
+	method pasarFrame() {
+		frame = (frame + 1) % cantFrames
+	}
+	method refrescarSprite() {
+		if(game.hasVisual(self)) {
+			game.removeVisual(self)
+			game.addVisual(self)	
+		}
+	}
+	method image() = img + frame.toString() + ".png"
+}
+
+class Personaje inherits Sprite {
+	var position = null
+	var direccion = null
+	
+	method mover(_direccion) {
+		direccion = _direccion
+		position = direccion.siguiente(position)
+		self.darPaso()
+	}
+	method darPaso(){
+		self.pasarFrame()
+		game.schedule(250,{self.pasarFrame()})
+	}
+	method position() = position
+	override method image() = img + direccion.toString() + frame.toString() + ".png"
 }

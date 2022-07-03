@@ -11,9 +11,7 @@ class Juego {
         game.addVisual(object{method position()= game.center() method text() = "Juego "+color + " - <q> para salir"})		
 	}
 	
-	method terminar(){
-
-	}
+	method terminar(){}
 	
 	method image() = "juego" + color + ".png"
 

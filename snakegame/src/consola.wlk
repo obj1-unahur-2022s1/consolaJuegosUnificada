@@ -6,7 +6,7 @@ object consola {
 
 	const juegos = [
 		new Juego(color = "Amarillo", juego = new JuegoSnake(dificultad=1)),
-		new Juego(color = "Verde", juego = new JuegoSnake(dificultad=2)),
+		snakeStarts,
 		new Juego(color = "Rojo", juego = new JuegoSnake(dificultad=3)),
 		new Juego(color = "Azul", juego = new JuegoSnake(dificultad=4)),
 		new Juego(color = "Naranja", juego = new JuegoSnake(dificultad=5)),

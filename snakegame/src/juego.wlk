@@ -8,7 +8,7 @@ class Juego {
 	const juego
 	
 	method iniciar(){
-        juego.start()
+        juego.iniciar()
 	}
 	
 	method terminar(){
@@ -16,5 +16,15 @@ class Juego {
 	}
 	method image() = "juego" + color + ".png"
 	
+}
 
+object snakeStarts 
+{
+	const snaker = new Juego(color = "Verde", juego = new JuegoSnake(dificultad=2))
+	var property position
+	method image() = "headUp.png"
+	method iniciar() 
+	{
+		snaker.iniciar()
+	}
 }

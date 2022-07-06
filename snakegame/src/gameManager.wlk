@@ -4,14 +4,14 @@ import food.*
 
 
 class JuegoSnake {
-	const dificultad
-	method start() {
+	const dificultad = 2
+	method iniciar() {
 		puntos.reiniciar()
 		
 		game.title("Snake Game")
 		game.boardGround("fondo.png")
 		game.width(53)
-		game.height(38)
+		game.height(37)
 		game.cellSize(16)
 		
 		// Visuales

@@ -4,7 +4,7 @@
 
 - ### BOMBERMAN!
 
-![](assets/bman/menuBomberman.png)
+![](assets/bman/bombermanLogo.png)
 
 - ### SNAKE
 

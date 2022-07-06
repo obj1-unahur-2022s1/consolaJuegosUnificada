@@ -1,0 +1,9 @@
+import consola.*
+import wollok.game.*
+import gameManager.*
+
+program juegos {
+	game.boardGround("fondo.png")
+	consola.iniciar()
+	game.start()
+}

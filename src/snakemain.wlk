@@ -1,18 +1,22 @@
 import wollok.game.*
 import snake.*
-import food.*
 
 
-class JuegoSnake {
-	const dificultad
-	method start() {
+object juegoSnake {
+	
+	var property position
+	var property image = "snake/headUp.png"
+	
+	const dificultad = 0.5
+	
+	method iniciar() {
 		puntos.reiniciar()
 		
 		game.title("Snake Game")
 		game.boardGround("fondo.png")
-		game.width(53)
-		game.height(38)
-		game.cellSize(16)
+		//game.width(53)
+		//game.height(38)
+		//game.cellSize(16)
 		
 		// Visuales
 		game.addVisual(snake)
@@ -42,14 +46,14 @@ object sonido {
 	const gameOverMusic = self.music("gameover")
 	
 	method music(name) {
-		 const sound = game.sound("audio/music/" + name + ".mp3")
+		 const sound = game.sound("snake/audio/music/" + name + ".mp3")
 		 sound.shouldLoop(true)
 		 sound.volume(musicVolume)
 		 return sound
 	}
 	
 	method effect(name){
-		const sound = game.sound("audio/sfx/" + name + ".mp3")
+		const sound = game.sound("snake/audio/sfx/" + name + ".mp3")
 		sound.volume(sfxVolume)
 		return sound
 	}

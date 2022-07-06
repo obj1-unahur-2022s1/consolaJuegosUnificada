@@ -1,11 +1,12 @@
 import wollok.game.* 
 import juego.*
+import snakemain.*
 
 object consola {
 
 	const juegos = [
 		bomberman,
-		new Juego(color = "Verde"),
+		juegoSnake,
 		new Juego(color = "Rojo"),
 		new Juego(color = "Azul"),
 		new Juego(color = "Naranja"),

@@ -1,6 +1,7 @@
 import wollok.game.*
 import snake.*
-import gameManager.*
+import snakemain.*
+import snakelib.*
 import consola.*
 
 object endMenu {
@@ -12,7 +13,7 @@ object endMenu {
 	}
 
 	method terminarJuego() {
-		keyboard.q().onPressDo({ consola.hacerTerminar(null) })
+		keyboard.q().onPressDo({ consola.hacerTerminar(juegoSnake) })
 	}
 }
 

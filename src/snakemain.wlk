@@ -1,33 +1,20 @@
 import wollok.game.*
 import snake.*
 
-
-<<<<<<< HEAD:src/snakemain.wlk
 object juegoSnake {
 	
 	var property position
 	var property image = "snake/headUp.png"
 	
 	const dificultad = 0.5
-	
-=======
-class JuegoSnake {
-	const dificultad = 2
->>>>>>> 9a34baa89685055caa7f65178f90bdcd4008c7b9:snakegame/src/gameManager.wlk
 	method iniciar() {
 		puntos.reiniciar()
 		
 		game.title("Snake Game")
 		game.boardGround("fondo.png")
-<<<<<<< HEAD:src/snakemain.wlk
 		//game.width(53)
 		//game.height(38)
 		//game.cellSize(16)
-=======
-		game.width(53)
-		game.height(37)
-		game.cellSize(16)
->>>>>>> 9a34baa89685055caa7f65178f90bdcd4008c7b9:snakegame/src/gameManager.wlk
 		
 		// Visuales
 		game.addVisual(snake)

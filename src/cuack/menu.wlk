@@ -13,7 +13,7 @@ object menuPrincipal {
 		new Nivel(indice = 6, titulo = "Ciudad", maximoDeAutos = 25, velocidadDeAutos = 110, vehiculosPorPunto = 8)
 	] 
 	var menu 
-	const sonido = game.sound("Musica.mp3")
+	const sonido = game.sound("cuack/Musica.mp3")
 	
 	method initialize(){
 		// TODO

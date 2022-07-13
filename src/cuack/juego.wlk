@@ -74,7 +74,7 @@ object gameDirector{
 		vehiculos.get(i).initialize()
 	}
 	method instanciarMeta(i, vehiculosPorPunto){
-		game.addVisual(new Meta(position = game.at(i-1, 9), vehiculosAGenerar = vehiculosPorPunto))
+		game.addVisual(new Meta(position = game.at(i-1, game.height()-1), vehiculosAGenerar = vehiculosPorPunto))
 	}
 	method conducirTodos(){
 		vehiculos.forEach({ v=>
@@ -188,11 +188,8 @@ class Vehiculo{
 		return game.at(-game.width().randomUpTo(0).roundUp(), yPos)
 	}
 	method carrilAleatorio(){
-		var carril = 1.randomUpTo(game.height()).roundUp()
-		if (carril == 9){
-			return self.carrilAleatorio()
-		}
-		return carril
+		return (1..game.height()-2).anyOne()
+				
 	}
 	method colisiona(){
 		gameDirector.perderVida()

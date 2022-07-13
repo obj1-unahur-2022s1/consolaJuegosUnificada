@@ -23,6 +23,7 @@ object juegoSnake {
 		game.addVisual(new Rayo(dificultad=dificultad))
 		game.addVisual(puntos)
 		
+		sonido.setup()
 		// Configurar snake
 		snake.start()
 		//snake.dificultad(dificultad)

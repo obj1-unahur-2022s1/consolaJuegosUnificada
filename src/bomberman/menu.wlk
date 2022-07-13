@@ -8,10 +8,11 @@ class Menu {
 	var opcionSeleccionada
 	const property image
 	const opciones = true
+	const property position = game.origin()
 
 	method iniciar() {
 		game.clear()
-		game.addVisualIn(self,game.origin())
+		game.addVisual(self)
 		if(opciones) {
 			keyboard.up().onPressDo{self.cambiarOpcionSeleccionadaA(opcionSeleccionada.opcionSuperior())}
 			keyboard.down().onPressDo{self.cambiarOpcionSeleccionadaA(opcionSeleccionada.opcionInferior())}

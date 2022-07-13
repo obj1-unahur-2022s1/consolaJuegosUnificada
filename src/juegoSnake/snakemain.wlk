@@ -37,6 +37,8 @@ object juegoSnake {
 object fondo {
 	method position() = game.origin()
 	method image() = "snake/fondo.png"
+	method onCollide(){}
+	
 }
 
 object sonido {

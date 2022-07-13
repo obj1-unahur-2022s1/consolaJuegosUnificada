@@ -52,10 +52,10 @@ object jugador inherits Personaje(img="bman/bman_") {
 class Enemigo inherits Personaje(img="bman/bichito_") {
 	
 	method dibujar() {
-		juego.dibujarElementoConEvento(self,500,{self.moverse()})
+		juegoBomb.dibujarElementoConEvento(self,500,{self.moverse()})
 	}
 	method explotar() {
-		juego.removerElementoConEvento(self)
+		juegoBomb.removerElementoConEvento(self)
 		scoreSoundEffect.play()
 		puntos.aniadirPunto()
 	}
@@ -107,10 +107,10 @@ class BloqueVulnerable inherits Bloque {
 	method soltarPowerUp() {
 		const suerte = (1..10).anyOne()
 		if(suerte == 1) {
-			game.addVisualIn(new PowerUp(objeto=bombas,image="bman/bombPowerUp.png"),position)
+			game.addVisual(new PowerUp(objeto=bombas,image="bman/bombPowerUp.png",position =  position))
 		}
 		else if(suerte == 2) {
-			game.addVisualIn(new PowerUp(objeto=explosiones,image="bman/flamePowerUp.png"),position)
+			game.addVisual(new PowerUp(objeto=explosiones,image="bman/flamePowerUp.png",position = position))
 		}
 	}
 }
@@ -121,13 +121,13 @@ class Bomba inherits Sprite(cantFrames = 3,img="bman/bomba") {
 	
 	method colocar() {
 			bombaSoundEffect.play()
-			juego.dibujarElementoConEvento(self,800,{self.pasarFrame()})
+			juegoBomb.dibujarElementoConEvento(self,800,{self.pasarFrame()})
 			jugador.refrescarSprite()
  			game.schedule(3000,{self.explotar()})
 	}
  	method explotar() {
  		if(game.hasVisual(self)) {
-			juego.removerElementoConEvento(self)
+			juegoBomb.removerElementoConEvento(self)
  			jugador.decBombasColocadas()
  			explosionSoundEffect.play()
  			new Flama(position=position).dibujar()
@@ -151,7 +151,7 @@ class Explosion {
 	var posicionesAlcanzadas = 0
 
 	method desencadenar() {
-		juego.dibujarElementoConEvento(self,50,{self.avanzar()})
+		juegoBomb.dibujarElementoConEvento(self,50,{self.avanzar()})
 	}
 	method avanzar() {
 		if (posicionesAlcanzadas == explosiones.alcance()) {
@@ -164,7 +164,7 @@ class Explosion {
 		}
 	}
 	method remover() {
-		juego.removerElementoConEvento(self)
+		juegoBomb.removerElementoConEvento(self)
 		jugador.refrescarSprite()
 	}
 	method explotar() {}
@@ -183,7 +183,7 @@ class Flama inherits Sprite(cantFrames = 5,img="bman/flama") {
 	}
 	method remover() {
 		if(game.hasVisual(self)) {
-			juego.removerElementoConEvento(self)
+			juegoBomb.removerElementoConEvento(self)
 		}
 	}
 	method explotar() {}
@@ -193,6 +193,7 @@ class Flama inherits Sprite(cantFrames = 5,img="bman/flama") {
 class PowerUp {
 	const objeto
 	const property image
+	const property position
 	
 	method chocarJugador() {
 		game.removeVisual(self)
@@ -213,7 +214,7 @@ object portal {
 	method explotar() {}
 }
 
-object juego {
+object juegoBomb  {
 	method dibujarElementoConEvento(elemento,tiempo,closure) {
 		game.addVisual(elemento)
 		game.onTick(tiempo,elemento.identity().toString(),closure)

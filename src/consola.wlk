@@ -1,12 +1,15 @@
 import wollok.game.*
 import bomberman.bomberman.*
 import juegoSnake.snakemain.*
+import cuack.wollocuack.*
+
 
 object consola {
 
 	const juegos = [
 		bomber,
-		juegoSnake
+		juegoSnake,
+		wollocuack
 	]
 	var menu 
 	

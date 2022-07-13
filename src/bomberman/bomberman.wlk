@@ -3,6 +3,14 @@ import menu.*
 import efectosDeSonido.*
 import mapa.*
 
+object bomber {
+	var property position
+	method image() = "bman_head.png"
+	method iniciar() {
+		menus.menuInicio().iniciar()
+	}
+}
+
 object jugador inherits Personaje(img="bman/bman_") {
 	var bombasColocadas = 0
 	var property activo = true

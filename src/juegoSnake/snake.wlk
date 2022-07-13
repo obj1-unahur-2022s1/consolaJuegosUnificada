@@ -1,8 +1,7 @@
 import wollok.game.*
-import direction.*
-import gameManager.*
-import gameObjects.*
-import menu.*
+import snakelib.*
+import snakegui.*
+import snakemain.*
 
 object snake inherits GameObjectBase {
 	var dificultad = 1
@@ -14,7 +13,7 @@ object snake inherits GameObjectBase {
 	var ultimoSegmento = null
 	var tick = 250 * dificultad
 	
-	method image() = "head" + direction.toString() + ".png"
+	method image() = "snake/head" + direction.toString() + ".png"
 	
 	method start() {
 		// Para la rejugabilidad
@@ -22,10 +21,10 @@ object snake inherits GameObjectBase {
 		ultimaPosicion = position
 		ultimoSegmento = null
 		
-		keyboard.w().onPressDo({direction.setUp()})
-		keyboard.s().onPressDo({direction.setDown()})
-		keyboard.a().onPressDo({direction.setLeft()})
-		keyboard.d().onPressDo({direction.setRight()})
+		keyboard.up().onPressDo({direction.setUp()})
+		keyboard.down().onPressDo({direction.setDown()})
+		keyboard.left().onPressDo({direction.setLeft()})
+		keyboard.right().onPressDo({direction.setRight()})
 		game.onTick(tick, "snakeLoop", { self.mover() })
 	}
 	
@@ -76,7 +75,7 @@ class SnakeBodypart {
 	var property anterior = null
 	var property ultimaPosicion = position
 	var property position
-	method image() = "snakeBody.png"
+	method image() = "snake/snakeBody.png"
 	
 	method mover(nuevaPosicion) {
 		ultimaPosicion = position
@@ -88,4 +87,66 @@ class SnakeBodypart {
 		game.say(snake, "Perdiste!")
 		endMenu.iniciar()
 	}
+}
+
+/* CONSUMIBLES */
+
+class Food inherits GameObjectBase {
+	var image =  ""
+	var dificultad
+	
+	method image() = image
+	
+	method initialize() {
+		self.setRandomPosition()
+	}
+	
+	method setRandomPosition() {
+		image = "snake/fruta" + [1,2,3].anyOne() + ".png"
+		position = game.at(0.randomUpTo(game.width()), 0.randomUpTo(game.height()))
+	}
+	
+	method onCollide() {
+		snake.agregarSegmento()
+		sonido.pop()
+		self.setRandomPosition()
+		puntos.sumarPuntos(1)
+	}
+}
+
+class Insecto inherits Food {
+	
+	var direction = new Direction2D()
+	
+	override method image() = "snake/tarantula" + direction.toString() + ".png"
+	
+	override method initialize(){
+		super()
+		game.onTick(1000 / dificultad, "spiderLoop", {self.move()})
+	}
+	
+	method move(){
+		direction = new Direction2D(randomize=true)
+		position = game.at(position.x() + direction.x(), position.y() + direction.y())
+		self.validarPosicionSalida()
+	}
+	
+	override method onCollide() {
+		sonido.spider()
+		self.setRandomPosition()
+		snake.agregarSegmento()
+		puntos.sumarPuntos(3)
+	}
+}
+
+class Rayo inherits Food {
+	
+	override method image() = "snake/velocidad.png"
+	
+	override method onCollide() {
+		snake.establecerTick(100 / dificultad)
+		game.schedule(1000 * 4, { snake.establecerTick(100) })
+		self.setRandomPosition()
+	}
+	
 }

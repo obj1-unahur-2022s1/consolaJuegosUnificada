@@ -1,9 +1,18 @@
 Manifest-Version: 1.0
+<<<<<<< HEAD
 Bundle-ManifestVersion: 2
 Bundle-Name: BaseGame
 Bundle-Vendor: My Company
 Bundle-Version: 1.0.0.qualifier
 Bundle-SymbolicName: consoladejuegos;singleton:=true
+=======
+Automatic-Module-Name: ConsolaDeJuegos
+Bundle-ManifestVersion: 2
+Bundle-Name: ConsolaDeJuegos
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: ConsolaDeJuegos; singleton:=true
+>>>>>>> refs/heads/snake-game
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.ibm.icu,
  org.eclipse.xtext,

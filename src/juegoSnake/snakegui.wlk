@@ -1,6 +1,7 @@
 import wollok.game.*
 import snake.*
-import gameManager.*
+import snakemain.*
+import snakelib.*
 import consola.*
 
 object endMenu {
@@ -12,20 +13,20 @@ object endMenu {
 	}
 
 	method terminarJuego() {
-		keyboard.q().onPressDo({ consola.hacerTerminar(null) })
+		keyboard.q().onPressDo({ consola.hacerTerminar(juegoSnake) })
 	}
 }
 
 object gameOver {
 	
-	method image() = "youDie.png"
+	method image() = "snake/youDie.png"
 	method position() = game.at(0, 0)
 	
 }
 
 object fondoMenu {
 	
-	method image() = "menu.png"
+	method image() = "snake/menu.png"
 	method position() = game.at(0, 0)
 	
 }

@@ -1,10 +1,12 @@
 import wollok.game.*
-import bomberman.juego.*
+import bomberman.bomberman.*
+import juegoSnake.snakemain.*
 
 object consola {
 
 	const juegos = [
-		bomberman
+		bomber,
+		juegoSnake
 	]
 	var menu 
 	
@@ -12,7 +14,7 @@ object consola {
 		game.height(12)
 		game.width(17)
 		game.title("Consola de juegos")
-		game.boardGround("bman/consola-menu.jpg")
+		game.boardGround("consola-menu.jpg")
 	}
 	
 	method iniciar(){
@@ -87,5 +89,3 @@ class MenuIconos{
 		seleccionado = (seleccionado - 1).max(1)
 	}
 }
-
- 
